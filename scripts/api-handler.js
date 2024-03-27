@@ -7,8 +7,8 @@ class ApiHandler {
     }
 
     sendMessage = async (msg) => {
-        try { console.log (`${API_URL}${API_KEY}`);
-            const response = await fetch(`${API_URL}${API_KEY}`, {
+        try { console.log (`${this.API_URL}${this.API_KEY}`);
+            const response = await fetch(`${this.API_URL}${this.API_KEY}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

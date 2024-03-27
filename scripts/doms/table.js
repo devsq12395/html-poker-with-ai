@@ -39,12 +39,13 @@ const domTable = {
         this.playerDivs[name].elems = elems;
     },
 
-    updatePlayerStack (player, newBet, newStack){ console.log (newBet, newStack);
-        this.playerDivs [player].elems.txtBet.textContent = `Bet: ${newBet}`;
-        this.playerDivs [player].elems.txtStack.textContent = `Stack: ${newStack}`;
+    updatePlayerStack (playerName, nameTxt, newBet, newStack){ 
+        this.playerDivs [playerName].elems.txtName.textContent = nameTxt;
+        this.playerDivs [playerName].elems.txtBet.textContent = `Bet: ${newBet}`;
+        this.playerDivs [playerName].elems.txtStack.textContent = `Stack: ${newStack}`;
     },
 
-    updatePot (newPot){
-        this.potTxt.textContent = `Pot: ${newPot}`;
+    updatePotAndBoard (newPot, board){
+        this.potTxt.textContent = `Pot: ${newPot}<br>Board: ${board}`;
     }
 }

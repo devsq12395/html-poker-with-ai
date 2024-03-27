@@ -14,6 +14,7 @@ class GameHandler {
 
         this.playersCountBeforeSwitch = 0;
         this.phase = 'pre-flop';
+        this.lastPlay = '';
     }
 
     init () {
@@ -74,7 +75,7 @@ class GameHandler {
         this.playersCountBeforeSwitch = this.players.length - 1;
         this.assignPositions ();
 
-        this.updateAllPlayerStackInDom ();
+        this.updateAllPlayerTextsInDom ();
     }
 
     dealCard (amount) { 
@@ -108,9 +109,12 @@ class GameHandler {
     }
 
     player_doAction (player, action, amount) {
+        this.debugLog (`Doing action ${action} for ${player.name} with amount ${amount} and isNaN ${isNaN (amount)}`);
+
         if (typeof (player) === "string") {
             player = this.players.find (obj => obj.name === player);
         }
+        amount = (isNaN (amount) ? 0 : Number (amount));
 
         switch (action) {
             case 'bet': 
@@ -159,7 +163,7 @@ class GameHandler {
 
         }
 
-        this.updateAllPlayerStackInDom ();
+        this.updateAllPlayerTextsInDom ();
 
         this.changeTurn ();
     }
@@ -188,7 +192,7 @@ class GameHandler {
             this.pot += player.betCur;
             player.betCur = 0;
         });
-        domTable.updatePot (this.pot);
+        domTable.updatePotAndBoard (this.pot, this.board.join (', '));
         this.curBet = 0;
 
         // Change Phase
@@ -237,10 +241,10 @@ class GameHandler {
                 break;
         }
 
-        this.updateAllPlayerStackInDom ();
+        this.updateAllPlayerTextsInDom ();
     }
 
-    switchCurTurn () { 
+    async switchCurTurn () { 
         this.debugLog (`switching whose turn is it`);
 
         let curIndex = this.players.indexOf (this.curTurn);
@@ -249,11 +253,37 @@ class GameHandler {
         }
 
         this.curTurn = this.players [curIndex];
-        
+
         this.debugLog (`cur turn is now ${this.curTurn.name}`);
 
 
         /* PUT AI CODES HERE */
+        if (this.curTurn.isAI) {
+            domController.hideDisplay ();
+            let response = await this.askAIForDecision (),
+                data = response.split (' ').filter ((val, ind) => ind < 2),
+                explanation = response.split (' ').filter ((val, ind) => ind >= 2).join (' ');
+
+            domController.showDisplay ();
+            
+            this.debugLog (`Explanation: ${explanation}`);
+            this.player_doAction (this.curTurn, data[0].toLowerCase (), data[1]);
+        }        
+    }
+
+    async askAIForDecision (){
+        let msg = `Poker time, situation: `;
+        msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options: `;
+        msg += (this.curBet === 0) ? `BET [amount], FOLD` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
+        msg += `Sample response: ${(this.curBet === 0) ? `BET 5` : `RAISE 5`} : [Explanation] `;
+
+        this.debugLog ('Sending message to AI:');
+        this.debugLog (msg);
+
+        let response = await window.apiHandler.sendMessage (msg);
+        this.debugLog (`Received response: ${response}`);
+
+        return response;
     }
 
     awardPot () {
@@ -278,11 +308,16 @@ class GameHandler {
         });
     }
 
-    updateAllPlayerStackInDom (){
+    updateAllPlayerTextsInDom (){
         this.players.forEach ((player) => {
-            domTable.updatePlayerStack (player.name, player.betCur, player.stack);
+            domTable.updatePlayerStack (
+                player.name,
+                `${player.name}${(this.curTurn.id === player.id) ? `(Turn)` : ``}`, 
+                player.betCur, 
+                player.stack
+            );
         });
-        domTable.updatePot (this.pot);
+        domTable.updatePotAndBoard (this.pot, this.board.join (', '));
     }
 
     debugLog (msg){
