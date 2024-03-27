@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Project</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+
+
+
+  <div class="main-grid">
+    <div class="chatbox">
+      <p class="chatbox-txt"></p>
+
+      <div class="input-container">
+        <input type="text" id="user-input">
+        <button id="btn-send">Send</button>
+      </div>
+    </div>
+
+    <div class="table">
+      
+      <div class="table-pot">
+        <h3 id="pot-txt">Pot: 0</h3>
+      </div>
+    </div>
+
+    <div class="control">
+      <h3>Bet Amount:</h3>
+      <input type="text" id="bet-input">
+      <div class="control-btns">
+        <button class="control-btn" id="btn-bet">Bet</button>
+        <button class="control-btn" id="btn-call">Call</button>
+        <button class="control-btn" id="btn-fold">Fold</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts/doms/controller.js"></script>
+  <script src="scripts/doms/table.js"></script>
+
+  <script src="scripts/api-handler.js"></script>
+  <script src="scripts/rules.js"></script>
+  <script src="scripts/player.js"></script>
+  <script src="scripts/game-handler.js"></script>
+
+  <script>
+    // Start the game
+    window.gameHandler.init ();
+  </script>
+  </body>
+</html>
