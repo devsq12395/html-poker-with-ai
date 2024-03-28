@@ -11,8 +11,8 @@
 
 
   <div class="main-grid">
-    <div class="chatbox">
-      <p class="chatbox-txt"></p>
+    <div class="hand-history">
+      <p class="hand-history-txt"></p>
 
       <div class="input-container">
         <input type="text" id="user-input">
@@ -31,8 +31,10 @@
       <h3>Bet Amount:</h3>
       <input type="text" id="bet-input">
       <div class="control-btns">
-        <button class="control-btn" id="btn-bet">Bet</button>
+        <button class="control-btn" id="btn-check">Check</button>
         <button class="control-btn" id="btn-call">Call</button>
+        <button class="control-btn" id="btn-bet">Bet</button>
+        <button class="control-btn" id="btn-raise">Raise</button>
         <button class="control-btn" id="btn-fold">Fold</button>
       </div>
     </div>
@@ -40,9 +42,10 @@
 
   <script src="scripts/doms/controller.js"></script>
   <script src="scripts/doms/table.js"></script>
+  <script src="scripts/doms/hand-history.js"></script>
 
   <script src="scripts/api-handler.js"></script>
-  <script src="scripts/rules.js"></script>
+  <script src="scripts/globals.js"></script>
   <script src="scripts/player.js"></script>
   <script src="scripts/game-handler.js"></script>
 

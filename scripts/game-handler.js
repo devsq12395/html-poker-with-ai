@@ -18,9 +18,12 @@ class GameHandler {
     }
 
     init () {
+        // Setup other scripts
+        domController.setupBtns ();
+
         // Create players
         this.createPlayer ('user', false, 0);
-        this.createPlayer ('gemini', true, 1);
+        this.createPlayer ('gemini', false, 1);
 
         this.startNewHand ();
     }
@@ -37,8 +40,8 @@ class GameHandler {
         this.deck = [];
         this.handHistoryAI = [];
 
-        let values = ['A', 'K', 'Q', 'J', 'X', '9', '8', '7', '6', '5', '4', '3', '2'],
-            suits = ['h', 'd', 'c', 's'];
+        let values = ['A', 'K', 'Q', 'J', '0', '9', '8', '7', '6', '5', '4', '3', '2'],
+            suits = ['H', 'D', 'C', 'S'];
 
         suits.forEach ((suit) => {
             let cardsInSuit = values.map ((value) => value + suit);
@@ -61,12 +64,18 @@ class GameHandler {
         this.debugLog (`deck shuffled`);
     }
 
-    startNewHand () { this.debugLog (`starting a new hand`);
+    startNewHand () { 
+        this.debugLog (`starting a new hand`);
+        this.addHandHistory (`Starting a new hand.`);
+
         this.shuffleDeck ();
         this.phase = 'pre-flop';
 
         this.players.forEach ((player) => {
             player.hand = this.dealCard (2);
+            player.hand.forEach ((card, ind) => {
+                domTable.createCardForPlayer (player, (player.isAI) ? 'back' : card, ind);
+            })
 
             this.debugLog (`${player.name}'s new hand is ${player.hand[0]}, ${player.hand[1]}`);
             player.handHistoryAI = [];
@@ -99,7 +108,7 @@ class GameHandler {
                 this.debugLog (`${curPlayer.name} is betting the big blind`);
 
                 this.curTurn = curPlayer;
-                this.player_doAction (curPlayer, 'bet', _RULES.BIG_BLIND);
+                this.player_doAction (curPlayer, 'bet', _GLOBALS.BIG_BLIND);
             }
 
             positions.splice (0, 1);
@@ -109,20 +118,29 @@ class GameHandler {
     }
 
     player_doAction (player, action, amount) {
-        this.debugLog (`Doing action ${action} for ${player.name} with amount ${amount} and isNaN ${isNaN (amount)}`);
-
         if (typeof (player) === "string") {
             player = this.players.find (obj => obj.name === player);
         }
+        this.debugLog (`Doing action ${action} for ${player.name} with amount ${amount} and isNaN ${isNaN (amount)}`);
         amount = (isNaN (amount) ? 0 : Number (amount));
 
         switch (action) {
+            case 'check': case 'checks':
+                this.debugLog (`${player.name} checks`);
+                this.addHandHistory_AI (player, `{player} checks`);
+                this.addHandHistory (`${player.name} checks`);
+
+                this.playersCountBeforeSwitch--;
+                console.log (this.playersCountBeforeSwitch);
+
+                break;
             case 'bet': 
                 player.betCur = amount;
                 player.stack -= amount;
 
                 this.debugLog (`${player.name} bets ${amount}`);
                 this.addHandHistory_AI (player, `{player} bets: ${amount}. {pot-stat}`);
+                this.addHandHistory (`${player.name} bets: ${amount}.`);
 
                 this.curBet = amount;
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
@@ -137,25 +155,28 @@ class GameHandler {
 
                 this.debugLog (`${player.name} raised for ${amount} more`);
                 this.addHandHistory_AI (player, `{player} raised to ${this.curBet} chips. {pot-stat}`);
+                this.addHandHistory (`${player.name} raised to ${this.curBet} chips.`);
                 
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
 
                 break;
-            case 'call': 
+            case 'call': case 'calls':
                 player.stack -= this.curBet - player.betCur;
                 player.betCur = this.curBet;
 
                 this.debugLog (`${player.name} calls`);
                 this.addHandHistory_AI (player, `{player} called. {pot-stat}`);
+                this.addHandHistory (`${player.name} called.`);
 
                 this.playersCountBeforeSwitch--;
 
                 break;
-            case 'fold': 
+            case 'fold':case 'folds':
                 player.hand = [];
 
                 this.debugLog (`${player.name} folds`);
                 this.addHandHistory_AI (player, `{player} folds.`);
+                this.addHandHistory (`${player.name} folds.`);
 
                 this.playersCountBeforeSwitch--;
 
@@ -207,7 +228,9 @@ class GameHandler {
                 
                 this.debugLog (`Flop is ${this.board.join (', ')}`);
                 this.addHandHistory_AI (null, `Flop is ${this.board.join (', ')}`);
-
+                this.addHandHistory (`Flop is ${this.board.join (', ')}`);
+                
+                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
                 break;
@@ -217,9 +240,11 @@ class GameHandler {
 
                 this.board.push (...this.dealCard (1)); 
                 
-                this.debugLog (`Turn is ${this.board [0]}`);
-                this.addHandHistory_AI (null, `Turn is ${this.board [0]}`);
+                this.debugLog (`Turn is ${this.board [3]}`);
+                this.addHandHistory_AI (null, `Turn is ${this.board [3]}`);
+                this.addHandHistory (`Turn is ${this.board [3]}`);
                 
+                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
                 break;
@@ -229,9 +254,11 @@ class GameHandler {
 
                 this.board.push (...this.dealCard (1));
 
-                this.debugLog (`River is ${this.board [0]}`);
-                this.addHandHistory_AI (null, `River is ${this.board [0]}`);
+                this.debugLog (`River is ${this.board [4]}`);
+                this.addHandHistory_AI (null, `River is ${this.board [4]}`);
+                this.addHandHistory (`River is ${this.board [4]}`);
 
+                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
                 break;
@@ -255,7 +282,7 @@ class GameHandler {
         this.curTurn = this.players [curIndex];
 
         this.debugLog (`cur turn is now ${this.curTurn.name}`);
-
+        this.updateAllPlayerTextsInDom ();
 
         /* PUT AI CODES HERE */
         if (this.curTurn.isAI) {
@@ -274,11 +301,13 @@ class GameHandler {
     async askAIForDecision (){
         let msg = `Poker time, situation: `;
         msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options: `;
-        msg += (this.curBet === 0) ? `BET [amount], FOLD` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
+        msg += (this.curBet === 0) ? `CHECK, BET [amount], FOLD` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
         msg += `Sample response: ${(this.curBet === 0) ? `BET 5` : `RAISE 5`} : [Explanation] `;
 
         this.debugLog ('Sending message to AI:');
         this.debugLog (msg);
+
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
         let response = await window.apiHandler.sendMessage (msg);
         this.debugLog (`Received response: ${response}`);
@@ -288,11 +317,13 @@ class GameHandler {
 
     awardPot () {
         let winner = this.players.filter ((player)=>player.hand.length > 0)[0];
-        console.log (`hand is done, winner is ${winner.name}`);
+        this.debugLog (`Hand is done, winner is ${winner.name}`);
+        this.addHandHistory (`Hand is done, winner is ${winner.name}`);
     }
 
     addHandHistory (action) {
         this.handHistory.push (action);
+        domHandHistory.addHistory (action);
     }
 
     addHandHistory_AI (playerDoingAction, action, addToNotPlayer = true) {
@@ -311,10 +342,8 @@ class GameHandler {
     updateAllPlayerTextsInDom (){
         this.players.forEach ((player) => {
             domTable.updatePlayerStack (
-                player.name,
-                `${player.name}${(this.curTurn.id === player.id) ? `(Turn)` : ``}`, 
-                player.betCur, 
-                player.stack
+                player,
+                `${player.name}${(this.curTurn.id === player.id) ? `(Turn)` : ``}`
             );
         });
         domTable.updatePotAndBoard (this.pot, this.board.join (', '));
