@@ -14,16 +14,16 @@ class GameHandler {
 
         this.playersCountBeforeSwitch = 0;
         this.phase = 'pre-flop';
-        this.lastPlay = '';
+        this.lastPlay = 'bet';
     }
 
     init () {
         // Setup other scripts
-        domController.setupBtns ();
+        domController.setup ();
 
         // Create players
         this.createPlayer ('user', false, 0);
-        this.createPlayer ('gemini', true, 1);
+        this.createPlayer ('gemini', false, 1);
 
         this.startNewHand ();
     }
@@ -85,6 +85,7 @@ class GameHandler {
         this.assignPositions ();
 
         this.updateAllPlayerTextsInDom ();
+        domController.changeControlSituation ();
     }
 
     dealCard (amount) { 
@@ -95,7 +96,7 @@ class GameHandler {
         this.curBtn++;
         if (this.curBtn >= this.players.length) this.curBtn = 0;
 
-        let positions = ['BTN', 'BB'],
+        let positions = ['BB', 'BTN'],
             curPlayerToAssign = this.curBtn;
         while (positions.length > 0) {
             let curPlayer = this.players [curPlayerToAssign];
@@ -142,6 +143,7 @@ class GameHandler {
                 this.addHandHistory_AI (player, `{player} bets: ${amount}. {pot-stat}`);
                 this.addHandHistory (`${player.name} bets: ${amount}.`);
 
+                this.lastPlay = 'bet';
                 this.curBet = amount;
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
 
@@ -157,6 +159,7 @@ class GameHandler {
                 this.addHandHistory_AI (player, `{player} raised to ${this.curBet} chips. {pot-stat}`);
                 this.addHandHistory (`${player.name} raised to ${this.curBet} chips.`);
                 
+                this.lastPlay = 'raise';
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
 
                 break;
@@ -185,6 +188,7 @@ class GameHandler {
         }
 
         this.updateAllPlayerTextsInDom ();
+        domController.changeControlSituation ();
 
         this.changeTurn ();
     }
@@ -265,11 +269,17 @@ class GameHandler {
                 break;
 
             case 'showdown':
-                
+                this.debugLog (`Showdown`);
+                this.addHandHistory (`Showdown`);
+
+                this.revealAllHand ();
+                let winningPlayer = handEvaluator.compareHands ();
+                this.awardPot (winningPlayer);
                 break;
         }
 
         this.updateAllPlayerTextsInDom ();
+        domController.changeControlSituation ();
     }
 
     async switchCurTurn () { 
@@ -300,8 +310,8 @@ class GameHandler {
     }
 
     async askAIForDecision (){
-        let msg = `Poker time, situation: `;
-        msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options: `;
+        let msg = `Let's play poker, situation: `;
+        msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options. Pls decide like an aggresive player: `;
         msg += (this.curBet === 0) ? `CHECK, BET [amount], FOLD` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
         msg += `Sample response: ${(this.curBet === 0) ? `BET 5` : `RAISE 5`} : [Explanation] `;
 
@@ -316,8 +326,19 @@ class GameHandler {
         return response;
     }
 
-    awardPot () {
-        let winner = this.players.filter ((player)=>player.hand.length > 0)[0];
+    revealAllHand (){
+        domTable.removeAllPlayerCards ();
+
+        this.players.forEach ((player) => {
+            if (player.hand.length > 0) {
+                player.hand.forEach ((card, ind) => domTable.createCardForPlayer (player, player.hand [ind]));
+            }
+        });
+    }
+
+    awardPot (winner) {
+        if (!winner) winner = this.players.filter ((player)=>player.hand.length > 0)[0];
+
         this.debugLog (`Hand is done, winner is ${winner.name}`);
         this.addHandHistory (`Hand is done, winner is ${winner.name}`);
     }
@@ -355,10 +376,6 @@ class GameHandler {
 
     debugLog (msg){
         console.log (msg);
-    }
-
-    handleShowdown (){
-
     }
 }
 

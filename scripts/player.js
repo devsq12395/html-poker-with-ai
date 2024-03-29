@@ -9,12 +9,9 @@ class Player {
         this.pos = '';
 
         this.hand = [];
+        this.handValue = 0;
         this.handHistoryAI = [];
 
         this.isAI = isAI;
-    }
-
-    bet = (amount) => {
-        window.gameHandler.player_doAction (this, 'bet', amount);
     }
 }

@@ -12,12 +12,27 @@ const domController = {
         fold:           document.querySelector ('#btn-fold'),
     },
 
-    setupBtns (){
+    labelChips:         document.querySelector ('#label-chips'),
+    isRaising: false,
+
+    setup (){
+        // Buttons
         this.btns.check.addEventListener ('click', this.callbackCheck.bind (this));
         this.btns.call.addEventListener ('click', this.callbackCall.bind (this));
         this.btns.bet.addEventListener ('click', this.callbackBet.bind (this));
         this.btns.raise.addEventListener ('click', this.callbackRaise.bind (this));
         this.btns.fold.addEventListener ('click', this.callbackFold.bind (this));
+
+        // Bet input
+        this.betInput.addEventListener ('input', function() {
+            this.updateBetLabel ();
+        }.bind (this));
+    },
+
+    updateBetLabel (){
+        let inputValue = this.betInput.value,
+            chips = Number (window.gameHandler.curBet) + Number (inputValue);
+        this.labelChips.innerHTML = `${chips} chips`;
     },
 
     callbackCheck (){
@@ -54,7 +69,31 @@ const domController = {
 
     showDisplay (){
         this.divControl.style.display = 'flex';
+        this.updateBetLabel ();
+        this.changeControlSituation ();
     },
+
+    changeControlSituation (){
+        if (window.gameHandler.curBet === 0) {
+
+            this.btns.check.style.display = 'block';
+            this.btns.call.style.display = 'none';
+            this.btns.bet.style.display = 'block';
+            this.btns.raise.style.display = 'none';
+            this.btns.fold.style.display = 'none';
+
+            this.isRaising = false;
+        } else if (window.gameHandler.lastPlay === 'bet' || window.gameHandler.lastPlay === 'raise') { 
+
+            this.btns.check.style.display = 'none';
+            this.btns.call.style.display = 'block';
+            this.btns.bet.style.display = 'none';
+            this.btns.raise.style.display = 'block';
+            this.btns.fold.style.display = 'block';
+
+            this.isRaising = true;
+        }
+    }
 
     
 }

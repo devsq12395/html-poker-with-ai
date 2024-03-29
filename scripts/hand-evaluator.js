@@ -2,6 +2,19 @@
 
 const handEvaluator = {
 
+    compareHands (){
+        let winningPlayer = null;
+        window.gameHandler.players.forEach ((player) => {
+            player.handValue = this.getHandValue (player.hand);
+            if (winningPlayer === null) {
+                winningPlayer = player;
+            } else if (winningPlayer.handValue < player.handValue){
+                winningPlayer = player;
+            }
+        });
+
+        return winningPlayer;
+    },
 
     getHandValue (hand) {
         let valuesNum = ['2','3','4','5','6','7','8','9','0','J','Q','K','A'];

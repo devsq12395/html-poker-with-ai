@@ -67,6 +67,18 @@ const domTable = {
         this.playerDivs[player.name].divCards.appendChild (div);
     },
 
+    removeAllPlayerCards () {
+        window.gameHandler.players.forEach ((player) => {
+            let playerDiv = this.playerDivs[player.name].divCards;
+
+            while (playerDiv.firstChild) {
+                let child = playerDiv.firstChild;
+                playerDiv.removeChild(playerDiv.firstChild);
+                child.remove ();
+            }
+        })
+    },
+
     createCardToBoard (card){
         let div = this.createCard (card);
             
