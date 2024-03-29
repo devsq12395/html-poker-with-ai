@@ -44,6 +44,7 @@ const domController = {
     },
 
     callbackFold (){
+        let curTurn = window.gameHandler.curTurn;
         window.gameHandler.player_doAction (`${curTurn.name}`, 'fold', 0);
     },
 

@@ -3,7 +3,8 @@
 
 const domTable = {
     divTable:           document.querySelector ('.table'),
-    pot:                document.querySelector ('.table-pot'),
+    divPot:             document.querySelector ('.table-pot'),
+    divBoardCards:      document.querySelector ('.board-cards'),
     potTxt:             document.querySelector ('#pot-txt'),
 
     tablePositions: [
@@ -48,7 +49,7 @@ const domTable = {
         this.playerDivs[name].elems = elems;
     },
 
-    createCardForPlayer (player, card, cardInd) {
+    createCard (card){
         let div                     = document.createElement ('div'),
             imgCard                 = document.createElement ('img');
 
@@ -56,10 +57,28 @@ const domTable = {
 
         imgCard.src = `https://www.deckofcardsapi.com/static/img/${card}.png`;
         div.appendChild (imgCard);
-        
-        let pos             = this.playerDivs[player.name].pos;
+
+        return div;
+    },
+
+    createCardForPlayer (player, card) {
+        let div = this.createCard (card);
 
         this.playerDivs[player.name].divCards.appendChild (div);
+    },
+
+    createCardToBoard (card){
+        let div = this.createCard (card);
+            
+        this.divBoardCards.appendChild (div);
+    },
+
+    removeAllCardsOnBoard (){
+        while (this.divBoardCards.firstChild) {
+            let child = this.divBoardCards.firstChild;
+            this.divBoardCards.removeChild(this.divBoardCards.firstChild);
+            child.remove ();
+        }
     },
 
     updatePlayerStack (player, nameTxt){ 

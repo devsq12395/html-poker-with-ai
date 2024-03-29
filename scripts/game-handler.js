@@ -23,7 +23,7 @@ class GameHandler {
 
         // Create players
         this.createPlayer ('user', false, 0);
-        this.createPlayer ('gemini', false, 1);
+        this.createPlayer ('gemini', true, 1);
 
         this.startNewHand ();
     }
@@ -73,8 +73,8 @@ class GameHandler {
 
         this.players.forEach ((player) => {
             player.hand = this.dealCard (2);
-            player.hand.forEach ((card, ind) => {
-                domTable.createCardForPlayer (player, (player.isAI) ? 'back' : card, ind);
+            player.hand.forEach ((card) => {
+                domTable.createCardForPlayer (player, (player.isAI) ? 'back' : card);
             })
 
             this.debugLog (`${player.name}'s new hand is ${player.hand[0]}, ${player.hand[1]}`);
@@ -247,9 +247,10 @@ class GameHandler {
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
+
                 break;
 
-            case 'river': 
+            case 'river':
                 this.debugLog (`dealing the river`);
 
                 this.board.push (...this.dealCard (1));
@@ -347,6 +348,9 @@ class GameHandler {
             );
         });
         domTable.updatePotAndBoard (this.pot, this.board.join (', '));
+
+        domTable.removeAllCardsOnBoard ();
+        this.board.forEach ((card) => domTable.createCardToBoard (card));
     }
 
     debugLog (msg){
