@@ -8,8 +8,9 @@ const domTable = {
     potTxt:             document.querySelector ('#pot-txt'),
 
     tablePositions: [
-        {x: 18, y: 24},
-        {x: 70, y: -6},
+        {x: 43, y: 26},
+        {x: 70, y: -5},
+        {x: 20, y: -5},
     ],
 
     playerDivs: {},

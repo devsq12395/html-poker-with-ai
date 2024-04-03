@@ -7,16 +7,14 @@
     grid-row: 1 / span 2;
 
     width: 70%;
-    height: 100%;
-    border: 3px solid #ccc;
-    border-radius: 4px;
+    height: 533px;
     margin-bottom: 20px;
     margin: 0px auto 20px auto;
 
     display: flex;
     flex-direction: column;
 
-    background-image: url('../media/imgs/table.jpg');
+    background-image: url('../media/imgs/table.png');
     background-size: 100% 100%;
     background-position: center; 
     background-repeat: no-repeat;
@@ -28,8 +26,7 @@
 
     width: 18%;
     max-width: 200px;
-    height: 40%;
-    min-height: 372px;
+    height: 372px;
 
     display: flex;
     flex-direction: column;
@@ -39,7 +36,7 @@
 
 .table-player-box {
     width: 100%;
-    height: 23%;
+    height: 86px;
 
     border: 4px solid #222288;
     border-radius: 4px;
@@ -91,10 +88,10 @@
 
 .table-pot {
     position: absolute;
-    top: 25%;
-    left: 30%;
+    top: 18%;
+    left: 33%;
 
-    width: 40%;
+    width: 30%;
     height: 40%;
     min-height: 372px;
 

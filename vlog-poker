@@ -13,7 +13,6 @@ G: -16 chips
 2. 108 (U all in chips) - 92 (G remaining chips) = 16
 	- 
 
-- on pre-flop, why is check on?
 
 - maybe dl the pictures so we can avoid preloading
 
@@ -23,10 +22,6 @@ G: -16 chips
 - illegal raise alert
 	- when raise is more than stack
 - kicker
-
-- simplified controls
-	- if scaler is minimum, that is call
-	- if not, that is raise
 
 - handle gemini errors or input errors from gemini
 	- when gemini has errored, try to send the same question again

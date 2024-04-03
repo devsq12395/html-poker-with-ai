@@ -26,7 +26,7 @@ class GameHandler {
 
         // Create players
         this.createPlayer ('user', false, 0);
-        this.createPlayer ('gemini', false, 1);
+        this.createPlayer ('gemini', true, 1);
 
         this.startNewHand ();
     }
