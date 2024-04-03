@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Project</title>
+    <title>You VS ChatGPT: Poker</title>
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
@@ -14,10 +14,7 @@
     <div class="hand-history">
       <p class="hand-history-txt"></p>
 
-      <div class="input-container">
-        <input type="text" id="user-input">
-        <button id="btn-send">Send</button>
-      </div>
+      <button class="control-btn" id="btn-check">Show History</button>
     </div>
 
     <div class="table">
@@ -44,10 +41,21 @@
     </div>
   </div>
 
+  <div class="popup">
+    <div class="popup-window">
+      <h2 class="popup-title">TEst of text</h2>
+      <h3 class="popup-msg">TEst of text</h3>
+      <button class="popup-btn popup-btn-ok">Ok</button>
+    </div>
+  </div>
+
+  <script src="scripts/preloader.js"></script>
+
   <script src="scripts/hand-evaluator.js"></script>
   <script src="scripts/doms/controller.js"></script>
   <script src="scripts/doms/table.js"></script>
   <script src="scripts/doms/hand-history.js"></script>
+  <script src="scripts/doms/popup.js"></script>
 
   <script src="scripts/api-handler.js"></script>
   <script src="scripts/globals.js"></script>

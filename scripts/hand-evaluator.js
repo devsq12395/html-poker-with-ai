@@ -1,11 +1,14 @@
 
 
-const handEvaluator = {
+let handEvaluator = {
 
     compareHands (){
         let winningPlayer = null;
         window.gameHandler.players.forEach ((player) => {
-            player.handValue = this.getHandValue (player.hand);
+			let handValueCalc = this.getHandValue ([...player.hand, ...window.gameHandler.board]);
+            player.handValue = handValueCalc.value;
+			window.gameHandler.addHandHistory (`${player.name} has ${handValueCalc.valueStr}`);
+			
             if (winningPlayer === null) {
                 winningPlayer = player;
             } else if (winningPlayer.handValue < player.handValue){
@@ -17,14 +20,18 @@ const handEvaluator = {
     },
 
     getHandValue (hand) {
+		console.log (`input hand:`);
+		console.log (hand);
         let valuesNum = ['2','3','4','5','6','7','8','9','0','J','Q','K','A'];
+		
 
         let values = hand.map ((card) => valuesNum.indexOf (card.split ('')[0])),
             suits = hand.map ((card) => card.split('')[1]);
-        let value = 0;
+        let value = 0, valueStr = '';
 
         // High card
         value = values.reduce ((acc, curVal) => Math.max (acc, curVal));
+		valueStr = `High Card: ${valueStr}`;
 
         // Pairs
         let pairs = 0,
@@ -41,8 +48,10 @@ const handEvaluator = {
         });
         if (pairs === 1) {
             value = Math.max (value, pairsValue + 100);
+			valueStr = `One Pair`;
         } else if (pairs === 2) {
             value = Math.max (value, pairsValue + 200);
+			valueStr = `Two Pair`;
         }
 
         // Three-of-a-kind
@@ -52,6 +61,7 @@ const handEvaluator = {
             if (count === 3) {
                 trips++;
                 tripsValue = Math.max(tripsValue, parseInt (val));
+				valueStr = `Three-of-a-kind`;
             }
         });
         if (trips >= 1) {
@@ -75,6 +85,7 @@ const handEvaluator = {
         });
         if (strChain >= 5) {
             value = 10000 + strMaxVal;
+			valueStr = `Straight`;
         }
 
         // Flush
@@ -98,7 +109,8 @@ const handEvaluator = {
                     }
                 }
             });
-
+			
+			valueStr = `Flush`;
             value = 100000 + flushHighestVal;
             isFlush = true;
         }
@@ -106,6 +118,7 @@ const handEvaluator = {
         // Full House
         if (pairs >= 1 && trips >= 1){
             value = 1000000 + tripsValue * 1000 + pairsValue;
+			valueStr = `Full House`;
         }
 
         // Straight Flush
@@ -131,9 +144,12 @@ const handEvaluator = {
             });
             if (strFlushChain >= 5) {
                 value = 100000000 + strFlushMaxVal;
+				valueStr = `Straight Flush`;
             }
         }
-
-        return value;
+		
+		console.log (`this hand's value is ${value}`);
+		console.log (`this hand has ${valueStr}`);
+        return {value, valueStr};
     }
 }

@@ -20,6 +20,9 @@ class GameHandler {
     init () {
         // Setup other scripts
         domController.setup ();
+        domPopup.setup ();
+        domPopup.hidePopup ();
+        preloader.preload ();
 
         // Create players
         this.createPlayer ('user', false, 0);
@@ -70,6 +73,10 @@ class GameHandler {
 
         this.shuffleDeck ();
         this.phase = 'pre-flop';
+
+        this.board = [];
+        domTable.removeAllPlayerCards ();
+        domTable.removeAllCardsOnBoard ();
 
         this.players.forEach ((player) => {
             player.hand = this.dealCard (2);
@@ -122,7 +129,7 @@ class GameHandler {
         if (typeof (player) === "string") {
             player = this.players.find (obj => obj.name === player);
         }
-        this.debugLog (`Doing action ${action} for ${player.name} with amount ${amount} and isNaN ${isNaN (amount)}`);
+        this.debugLog (`Doing action ${action} for ${player.name} with amount ${amount}`);
         amount = (isNaN (amount) ? 0 : Number (amount));
 
         switch (action) {
@@ -146,6 +153,8 @@ class GameHandler {
                 this.lastPlay = 'bet';
                 this.curBet = amount;
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
+                
+                domTable.setBetForPlayer (player);
 
                 break;
             case 'raise': 
@@ -158,24 +167,31 @@ class GameHandler {
                 this.debugLog (`${player.name} raised for ${amount} more`);
                 this.addHandHistory_AI (player, `{player} raised to ${this.curBet} chips. {pot-stat}`);
                 this.addHandHistory (`${player.name} raised to ${this.curBet} chips.`);
+
+                domTable.setBetForPlayer (player);
                 
                 this.lastPlay = 'raise';
                 this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
 
                 break;
             case 'call': case 'calls':
+                let callStack = player.stack;
                 player.stack -= this.curBet - player.betCur;
                 player.betCur = this.curBet;
+                if (player.betCur > callStack) player.betCur = callStack;
 
                 this.debugLog (`${player.name} calls`);
                 this.addHandHistory_AI (player, `{player} called. {pot-stat}`);
                 this.addHandHistory (`${player.name} called.`);
+
+                domTable.setBetForPlayer (player);
 
                 this.playersCountBeforeSwitch--;
 
                 break;
             case 'fold':case 'folds':
                 player.hand = [];
+                domTable.removeCardsForPlayer (player);
 
                 this.debugLog (`${player.name} folds`);
                 this.addHandHistory_AI (player, `{player} folds.`);
@@ -188,9 +204,9 @@ class GameHandler {
         }
 
         this.updateAllPlayerTextsInDom ();
-        domController.changeControlSituation ();
 
         this.changeTurn ();
+        domController.changeControlSituation ();
     }
 
     changeTurn () { 
@@ -213,7 +229,7 @@ class GameHandler {
         this.debugLog (`changing the phase`);
 
         // Collect the pot
-        this.players.forEach ((player) => { console.log ('betCur = ' + player.betCur);
+        this.players.forEach ((player) => {
             this.pot += player.betCur;
             player.betCur = 0;
         });
@@ -280,38 +296,51 @@ class GameHandler {
 
         this.updateAllPlayerTextsInDom ();
         domController.changeControlSituation ();
+        domTable.setBetForPlayers ();
     }
 
     async switchCurTurn () { 
         this.debugLog (`switching whose turn is it`);
 
-        let curIndex = this.players.indexOf (this.curTurn);
-        while (curIndex === this.players.indexOf (this.curTurn) || this.players[curIndex].hand.length <= 0) {
+        let curIndex = this.players.indexOf (this.curTurn),
+            isChangePhase = false;
+
+        curIndex++; if (curIndex >= this.players.length) curIndex = 0;
+        while (this.players[curIndex].hand.length <= 0 || this.players[curIndex].stack <= 0 || curIndex === this.players.indexOf (this.curTurn)) {
             curIndex++; if (curIndex >= this.players.length) curIndex = 0;
+
+            if (curIndex === this.players.indexOf (this.curTurn)) {
+                isChangePhase = true;
+                break;
+            }
         }
 
-        this.curTurn = this.players [curIndex];
+        if (!isChangePhase) {
+            this.curTurn = this.players [curIndex];
 
-        this.debugLog (`cur turn is now ${this.curTurn.name}`);
-        this.updateAllPlayerTextsInDom ();
+            this.debugLog (`cur turn is now ${this.curTurn.name}`);
+            this.updateAllPlayerTextsInDom ();
 
-        /* PUT AI CODES HERE */
-        if (this.curTurn.isAI) {
-            domController.hideDisplay ();
-            let response = await this.askAIForDecision (),
-                data = response.split (' ').filter ((val, ind) => ind < 2),
-                explanation = response.split (' ').filter ((val, ind) => ind >= 2).join (' ');
+            /* PUT AI CODES HERE */
+            if (this.curTurn.isAI) {
+                domController.hideDisplay ();
+                let response = await this.askAIForDecision (),
+                    data = response.split (' ').filter ((val, ind) => ind < 2),
+                    explanation = response.split (' ').filter ((val, ind) => ind >= 2).join (' ');
 
-            domController.showDisplay ();
-            
-            this.debugLog (`Explanation: ${explanation}`);
-            this.player_doAction (this.curTurn, data[0].toLowerCase (), data[1]);
-        }        
+                domController.showDisplay ();
+                
+                this.debugLog (`Explanation: ${explanation}`);
+                this.player_doAction (this.curTurn, data[0].toLowerCase (), data[1]);
+            }
+        } else {
+            this.changePhase ();
+        }
     }
 
     async askAIForDecision (){
         let msg = `Let's play poker, situation: `;
-        msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options. Pls decide like an aggresive player: `;
+        msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options: `;
         msg += (this.curBet === 0) ? `CHECK, BET [amount], FOLD` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
         msg += `Sample response: ${(this.curBet === 0) ? `BET 5` : `RAISE 5`} : [Explanation] `;
 
@@ -336,11 +365,37 @@ class GameHandler {
         });
     }
 
-    awardPot (winner) {
+    async awardPot (winner) {
         if (!winner) winner = this.players.filter ((player)=>player.hand.length > 0)[0];
 
         this.debugLog (`Hand is done, winner is ${winner.name}`);
         this.addHandHistory (`Hand is done, winner is ${winner.name}`);
+
+        this.players.forEach ((player) => {
+            player.stack += player.betCur;
+            player.betCur = 0;
+        });
+        domTable.setBetForPlayers ();
+
+        winner.stack += this.pot;
+        this.pot = 0;
+
+        this.updateAllPlayerTextsInDom ();
+        domController.hideDisplay ();
+
+        if (this.players [0].stack > 0 && this.players [1].stack > 0) {
+            this.addHandHistory (`Next hand starts in 5 seconds...`);
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
+            domController.showDisplay ();
+            this.startNewHand ();
+        } else {
+            if (this.players [0].stack <= 0) {
+                domPopup.showPopup ('You Lose!', 'You are out of chips!');
+            } else if (this.players [1].stack <= 0) {
+                domPopup.showPopup ('You Win!', 'AI is out of chips!');
+            }
+        }
     }
 
     addHandHistory (action) {
@@ -363,10 +418,7 @@ class GameHandler {
 
     updateAllPlayerTextsInDom (){
         this.players.forEach ((player) => {
-            domTable.updatePlayerStack (
-                player,
-                `${player.name}${(this.curTurn.id === player.id) ? `(Turn)` : ``}`
-            );
+            domTable.updatePlayerBox (player);
         });
         domTable.updatePotAndBoard (this.pot, this.board.join (', '));
 

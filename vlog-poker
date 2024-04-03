@@ -1,0 +1,79 @@
+
+
+U: 106, BB of 2, total should be 108
+G: 92
+G raise 4, stack now 88, bet on table is 4
+U all in for 108
+G calls
+outcome:
+U: 196 chips
+G: -16 chips
+
+1. bet in table of 4 is not given to U
+2. 108 (U all in chips) - 92 (G remaining chips) = 16
+	- 
+
+- on pre-flop, why is check on?
+
+- maybe dl the pictures so we can avoid preloading
+
+- illegal bet alert
+	- when bet is 0
+	- when bet is more than stack
+- illegal raise alert
+	- when raise is more than stack
+- kicker
+
+- simplified controls
+	- if scaler is minimum, that is call
+	- if not, that is raise
+
+- handle gemini errors or input errors from gemini
+	- when gemini has errored, try to send the same question again
+- indicate big blind bets
+
+- on showdown, also show on text the hands
+
+low prio:
+- chopped pot
+- kickers for showdown
+
+showdown error;
+Q 9 9 A 4    ai:3 3      me:8 9
+
+to do:
+- showdown
+- start new hand button
+- board cards
+- big blind bet
+- on controllers, check for illegal moves
+	- better if we disable illegal buttons, should be easy i think
+- control buttons, should trigger for curPlayer
+- on AI history, add the pre-flop stacks of all players
+- prove the AI's decision is logical by adding a EXPL: object on its response
+	- so we will have to make the AI respond in json
+- the api key is in github. you will have to disable it.
+
+1. looking for free apis and making them work
+	- found that gemini works
+2. tested a sample conversation, see if the AI will respond the way i want to
+3. planning scripts and testing the flow on console log
+	- created a seperate script for handling api communication, 
+	called it api-handler.js
+	- made it as a global variable so it's accessible to any scripts
+
+	- created a gameControl to handle the state of the game
+
+	- while creating the flow, checking on console log if it's correct
+	- once flow is done, playing first in console log to check
+
+4. planning the backend
+	- creating dom scripts
+
+5. preparing the ai integration
+	- adding an handHistory to 
+
+6. proven ai works, creating the control scripts
+
+7. making the frontend
+	- looking for card api so i wont have to download 52 cards

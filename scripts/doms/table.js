@@ -8,27 +8,26 @@ const domTable = {
     potTxt:             document.querySelector ('#pot-txt'),
 
     tablePositions: [
-        {x: 10, y: 34},
-        {x: 70, y: 3},
+        {x: 18, y: 24},
+        {x: 70, y: -6},
     ],
 
     playerDivs: {},
 
     createPlayer (name, index) {
         let div                     = document.createElement ('div'),
-            divTexts                = document.createElement ('div'),
+            divPlayerBox            = document.createElement ('div'),
             divCards                = document.createElement ('div'),
             elems = {
-                txtName                 : document.createElement ('h3'),
-                txtBet                  : document.createElement ('h3'),
-                txtStack                : document.createElement ('h3'),
+                avatar              : document.createElement ('img'),
+                txt                 : document.createElement ('h3'),
             };
 
-        elems.txtName.innerHTML = name;
-        elems.txtBet.innerHTML = `Bet: 0`;
-        elems.txtStack.innerHTML = `Stack: 0`;
+        elems.txt.innerHTML = `${name}<br>Chips: 0`;
+        elems.avatar.src = `media/imgs/avatar-${name}.png`;
+        elems.avatar.classList.add ('table-player-box-avatar');
         
-        divTexts.classList.add ('table-texts');
+        divPlayerBox.classList.add ('table-player-box');
         divCards.classList.add ('table-cards');
         div.classList.add ('table-player');
 
@@ -36,17 +35,38 @@ const domTable = {
         div.style.left      = `${pos.x}%`;
         div.style.top       = `${pos.y}%`;
 
-        Object.entries (elems).forEach (([key, value]) => divTexts.appendChild (value));
+        Object.entries (elems).forEach (([key, value]) => divPlayerBox.appendChild (value));
         
         div.appendChild (divCards);
-        div.appendChild (divTexts);
+        div.appendChild (divPlayerBox);
         this.divTable.appendChild (div);
 
-        this.playerDivs[name] = {};
-        this.playerDivs[name].div = div;
-        this.playerDivs[name].divCards = divCards;
+        this.playerDivs[name] = {div, divPlayerBox, divCards, elems};
+        this.playerDivs[name].betDiv = null;
+        this.playerDivs[name].betTxt = null;
         this.playerDivs[name].pos = this.tablePositions [index];
-        this.playerDivs[name].elems = elems;
+
+        this.createBetForPlayer (name);
+    },
+
+    createBetForPlayer (playerName){
+        let div = document.createElement ('div'),
+            divBg = document.createElement ('div'),
+            txt = document.createElement ('p');
+
+        div.classList.add ('bet-div');
+        divBg.classList.add ('bet-div-bg');
+        
+        txt.innerHTML = '';
+        divBg.appendChild (txt);
+        div.appendChild (divBg);
+
+        this.playerDivs[playerName].div.appendChild (div);
+        this.playerDivs[playerName].betDiv = div;
+        this.playerDivs[playerName].betDivBg = divBg;
+        this.playerDivs[playerName].betTxt = txt;
+
+        this.playerDivs[playerName].betDivBg.style.display = 'none';
     },
 
     createCard (card){
@@ -61,22 +81,38 @@ const domTable = {
         return div;
     },
 
+    setBetForPlayer (player){
+        if (player.betCur <= 0) {
+            this.playerDivs[player.name].betDivBg.style.display = 'none';
+            this.playerDivs[player.name].betTxt.innerHTML = '';
+        } else {
+            this.playerDivs[player.name].betDivBg.style.display = 'block';
+            this.playerDivs[player.name].betTxt.innerHTML = player.betCur; 
+        }
+    },
+
+    setBetForPlayers (){
+        window.gameHandler.players.forEach ((player) => domTable.setBetForPlayer (player));
+    },
+
     createCardForPlayer (player, card) {
         let div = this.createCard (card);
 
         this.playerDivs[player.name].divCards.appendChild (div);
     },
 
-    removeAllPlayerCards () {
-        window.gameHandler.players.forEach ((player) => {
-            let playerDiv = this.playerDivs[player.name].divCards;
+    removeCardsForPlayer (player){
+        let playerDiv = this.playerDivs[player.name].divCards;
 
-            while (playerDiv.firstChild) {
-                let child = playerDiv.firstChild;
-                playerDiv.removeChild(playerDiv.firstChild);
-                child.remove ();
-            }
-        })
+        while (playerDiv.firstChild) {
+            let child = playerDiv.firstChild;
+            playerDiv.removeChild(playerDiv.firstChild);
+            child.remove ();
+        }
+    },
+
+    removeAllPlayerCards () {
+        window.gameHandler.players.forEach ((player) => this.removeCardsForPlayer (player));
     },
 
     createCardToBoard (card){
@@ -93,13 +129,15 @@ const domTable = {
         }
     },
 
-    updatePlayerStack (player, nameTxt){ 
-        this.playerDivs [player.name].elems.txtName.innerHTML = nameTxt;
-        this.playerDivs [player.name].elems.txtBet.innerHTML = `Bet: ${player.betCur}`;
-        this.playerDivs [player.name].elems.txtStack.innerHTML = `Stack: ${player.stack}`;
+    updatePlayerBox (player){ 
+        let pDivs = this.playerDivs [player.name],
+            pDivColor = (window.gameHandler.curTurn.id === player.id) ? '#55DD55' : '#FF5555';
+
+        pDivs.divPlayerBox.style.backgroundColor = pDivColor;
+        pDivs.elems.txt.innerHTML = `${player.name}<br>Chips: ${player.stack}`;
     },
 
     updatePotAndBoard (newPot, board){
-        this.potTxt.innerHTML = `Pot: ${newPot}<br>Board: ${board}`;
+        this.potTxt.innerHTML = `Pot: ${newPot}`;
     }
 }

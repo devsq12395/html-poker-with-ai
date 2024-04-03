@@ -93,6 +93,18 @@ const domController = {
 
             this.isRaising = true;
         }
+
+        let inputMax = window.gameHandler.curTurn.stack + window.gameHandler.curTurn.betCur - window.gameHandler.curBet;
+        if (inputMax <= 0) {
+            this.btns.bet.style.display = 'none';
+            this.btns.raise.style.display = 'none';
+            this.betInput.style.display = 'none';
+        } else {
+            this.betInput.style.display = 'block';
+            this.betInput.max = inputMax;
+        }
+        this.betInput.value = 0;
+        this.updateBetLabel ();
     }
 
     
