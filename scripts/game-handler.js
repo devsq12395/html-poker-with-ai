@@ -77,6 +77,7 @@ class GameHandler {
         this.board = [];
         domTable.removeAllPlayerCards ();
         domTable.removeAllCardsOnBoard ();
+        domTable.hideWin ();
 
         this.players.forEach ((player) => {
             player.hand = this.dealCard (2);
@@ -382,6 +383,7 @@ class GameHandler {
 
         this.updateAllPlayerTextsInDom ();
         domController.hideDisplay ();
+        domTable.showWin (winner);
 
         if (this.players [0].stack > 0 && this.players [1].stack > 0) {
             this.addHandHistory (`Next hand starts in 5 seconds...`);

@@ -53,21 +53,26 @@ const domTable = {
     createBetForPlayer (playerName){
         let div = document.createElement ('div'),
             divBg = document.createElement ('div'),
+            win = document.createElement ('div'),
             txt = document.createElement ('p');
 
-        div.classList.add ('bet-div');
-        divBg.classList.add ('bet-div-bg');
+        div.classList.add ('bet-imgs-div');
+        win.classList.add ('bet-img', 'img-win');
+        divBg.classList.add ('bet-img', 'img-bet');
         
         txt.innerHTML = '';
         divBg.appendChild (txt);
+        div.appendChild (win);
         div.appendChild (divBg);
 
         this.playerDivs[playerName].div.appendChild (div);
         this.playerDivs[playerName].betDiv = div;
+        this.playerDivs[playerName].win = win;
         this.playerDivs[playerName].betDivBg = divBg;
         this.playerDivs[playerName].betTxt = txt;
 
         this.playerDivs[playerName].betDivBg.style.display = 'none';
+        this.playerDivs[playerName].win.style.display = 'none';
     },
 
     createCard (card){
@@ -140,5 +145,15 @@ const domTable = {
 
     updatePotAndBoard (newPot, board){
         this.potTxt.innerHTML = `Pot: ${newPot}`;
+    },
+
+    showWin (player){
+        let pDivs = this.playerDivs [player.name];
+
+        pDivs.win.style.display = 'block';
+    },
+
+    hideWin (){
+        window.gameHandler.players.forEach ((player) => this.playerDivs [player.name].win.style.display = 'none');
     }
 }

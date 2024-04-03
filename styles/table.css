@@ -113,26 +113,35 @@
     overflow: hidden;
 }
 
-.bet-div {
-    width: 141px;
+.bet-imgs-div {
+    width: 100%;
     height: 51px;
+    margin-top: 5px;
 
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-.bet-div-bg {
-    width: 100%;
+.bet-img {
     height: 100%;
 
-    background-image: url('../media/imgs/bet.png');
     background-size: cover;
     background-position: center; 
     background-repeat: no-repeat;
 }
 
-.bet-div-bg p {
+.img-bet {
+    width: 70%;
+    background-image: url('../media/imgs/bet.png');
+}
+
+.img-win {
+    width: 70%;
+    background-image: url('../media/imgs/win.png');
+}
+
+.img-bet p {
     margin: 15px 0px 0px 75px;
     font-size: 1.3rem;
 }
