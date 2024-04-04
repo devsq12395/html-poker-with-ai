@@ -180,10 +180,13 @@ class GameHandler {
 
                 break;
             case 'call': case 'calls':
-                let callStack = player.stack;
-                player.stack -= this.curBet - player.betCur;
-                player.betCur = this.curBet;
-                if (player.betCur > callStack) player.betCur = callStack;
+                if (this.curBet > player.stack) {
+                    player.betCur += player.stack;
+                    player.stack = 0;
+                } else {
+                    player.stack -= this.curBet - player.betCur;
+                    player.betCur = this.curBet;
+                }
 
                 this.debugLog (`${player.name} calls`);
                 this.addHandHistory_AI (player, `{player} called. {pot-stat}`);
@@ -383,7 +386,21 @@ class GameHandler {
     }
 
     async awardPot (winners) {
-        if (winners.length > 1) {
+        let winner = null;
+        if (!winners || winners.length === 1) {
+            if (!winners){
+                winner = this.players.filter ((player)=>player.hand.length > 0)[0];
+                winners = [winner];
+            } else {
+                winner = winners[0];
+            }
+            
+            this.debugLog (`Hand is done, winner is ${winner.name}`);
+            this.addHandHistory (`Hand is done, winner is ${winner.name}`);
+
+            winner.stack += this.pot;
+            
+        } else if (winners.length > 1) {
             this.debugLog (`Chopped pot.`);
             this.addHandHistory (`Chopped pot.`);
 
@@ -391,14 +408,7 @@ class GameHandler {
             winners.forEach ((player) => {
                 player.stack += chop;
             });
-        } else {
-            if (!winner) winner = this.players.filter ((player)=>player.hand.length > 0)[0];
 
-            this.debugLog (`Hand is done, winner is ${winner.name}`);
-            this.addHandHistory (`Hand is done, winner is ${winner.name}`);
-
-            let winner = winners [0];
-            winner.stack += this.pot;
         }
 
         this.pot = 0;

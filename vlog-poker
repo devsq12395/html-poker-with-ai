@@ -1,17 +1,19 @@
 
 
-U: 106, BB of 2, total should be 108
-G: 92
-G raise 4, stack now 88, bet on table is 4
-U all in for 108
-G calls
-outcome:
-U: 196 chips
-G: -16 chips
 
-1. bet in table of 4 is not given to U
-2. 108 (U all in chips) - 92 (G remaining chips) = 16
-	- 
+
+
+- when all other players are all in, no need to ask the player left on what to do, it wil be automatically check
+
+- player with 0 chips should not be dealt a hand
+	- player with 0 chips should not be counted as player to be awaited a decision
+
+- victory should be when no one else has chips
+	- maybe iterate through all players?
+
+- invalid raise (when bet <= pot)
+
+- action animations
 
 - delay in changePhase
 

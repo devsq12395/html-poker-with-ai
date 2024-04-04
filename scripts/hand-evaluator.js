@@ -14,7 +14,7 @@ let handEvaluator = {
                 winningPlayers = [player];
 
             } else if (winningPlayer.handValue === player.handValue){
-                winningPlayers.add (player);
+                winningPlayers.push (player);
 
             } else if (winningPlayer.handValue < player.handValue){
                 winningPlayer = player;
@@ -54,16 +54,16 @@ let handEvaluator = {
             }
         });
         if (pairs === 1) {
-            value = Math.max (value, pairsValue + 100);
+            value = Math.max (value, pairsValue + 1000);
 			valueStr = `One Pair`;
         } else if (pairs === 2) {
-            value = Math.max (value, pairsValue + 200);
+            value = Math.max (value, pairsValue + 2000);
 			valueStr = `Two Pair`;
         }
         // Count kickers - Pairs and High Card
         values.forEach ((val) => {
             if (counts [val] <= 0) {
-                value += parseInt (val) / 100;
+                value += parseInt (val);
             }
         });
 
@@ -79,13 +79,13 @@ let handEvaluator = {
                 // Count kickers - Three-of-a-kind
                 values.forEach ((val) => {
                     if (counts [val] < 3) {
-                        value += parseInt (val) / 100;
+                        value += parseInt (val);
                     }
                 });
             }
         });
         if (trips >= 1) {
-            value = Math.max (value, tripsValue + 1000);
+            value = Math.max (value, tripsValue + 10000);
         }
 
         // Straight
@@ -104,7 +104,7 @@ let handEvaluator = {
             }
         });
         if (strChain >= 5) {
-            value = 10000 + strMaxVal;
+            value = 100000 + strMaxVal;
 			valueStr = `Straight`;
         }
 
@@ -131,13 +131,13 @@ let handEvaluator = {
             });
 			
 			valueStr = `Flush`;
-            value = 100000 + flushHighestVal;
+            value = 1000000 + flushHighestVal;
             isFlush = true;
         }
 
         // Full House
         if (pairs >= 1 && trips >= 1){
-            value = 1000000 + tripsValue * 1000 + pairsValue;
+            value = 10000000 + tripsValue * 10000 + pairsValue;
 			valueStr = `Full House`;
         }
 
@@ -163,7 +163,7 @@ let handEvaluator = {
                 }
             });
             if (strFlushChain >= 5) {
-                value = 100000000 + strFlushMaxVal;
+                value = 1000000000 + strFlushMaxVal;
 				valueStr = `Straight Flush`;
             }
         }
