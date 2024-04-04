@@ -9,8 +9,8 @@ const domTable = {
 
     tablePositions: [
         {x: 43, y: 26},
-        {x: 70, y: -5},
         {x: 20, y: -5},
+        {x: 70, y: -5},
     ],
 
     playerDivs: {},
@@ -25,7 +25,7 @@ const domTable = {
             };
 
         elems.txt.innerHTML = `${name}<br>Chips: 0`;
-        elems.avatar.src = `media/imgs/avatar-${name}.png`;
+        elems.avatar.src = `media/imgs/avatar-${name.toLowerCase ()}.png`;
         elems.avatar.classList.add ('table-player-box-avatar');
         
         divPlayerBox.classList.add ('table-player-box');
@@ -147,10 +147,8 @@ const domTable = {
         this.potTxt.innerHTML = `Pot: ${newPot}`;
     },
 
-    showWin (player){
-        let pDivs = this.playerDivs [player.name];
-
-        pDivs.win.style.display = 'block';
+    showWin (players){
+        players.forEach ((player) => this.playerDivs [player.name].win.style.display = 'block');
     },
 
     hideWin (){

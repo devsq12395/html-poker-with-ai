@@ -3,7 +3,7 @@
 let handEvaluator = {
 
     compareHands (){
-        let winningPlayer = null;
+        let winningPlayers = [], winningPlayer = null;
         window.gameHandler.players.forEach ((player) => {
 			let handValueCalc = this.getHandValue ([...player.hand, ...window.gameHandler.board]);
             player.handValue = handValueCalc.value;
@@ -11,12 +11,19 @@ let handEvaluator = {
 			
             if (winningPlayer === null) {
                 winningPlayer = player;
+                winningPlayers = [player];
+
+            } else if (winningPlayer.handValue === player.handValue){
+                winningPlayers.add (player);
+
             } else if (winningPlayer.handValue < player.handValue){
                 winningPlayer = player;
+                winningPlayers = [player];
+
             }
         });
 
-        return winningPlayer;
+        return winningPlayers;
     },
 
     getHandValue (hand) {
@@ -53,6 +60,12 @@ let handEvaluator = {
             value = Math.max (value, pairsValue + 200);
 			valueStr = `Two Pair`;
         }
+        // Count kickers - Pairs and High Card
+        values.forEach ((val) => {
+            if (counts [val] <= 0) {
+                value += parseInt (val) / 100;
+            }
+        });
 
         // Three-of-a-kind
         let trips = 0,
@@ -62,11 +75,18 @@ let handEvaluator = {
                 trips++;
                 tripsValue = Math.max(tripsValue, parseInt (val));
 				valueStr = `Three-of-a-kind`;
+
+                // Count kickers - Three-of-a-kind
+                values.forEach ((val) => {
+                    if (counts [val] < 3) {
+                        value += parseInt (val) / 100;
+                    }
+                });
             }
         });
         if (trips >= 1) {
             value = Math.max (value, tripsValue + 1000);
-        } 
+        }
 
         // Straight
         let strMaxVal = 0,

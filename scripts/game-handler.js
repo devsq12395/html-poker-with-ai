@@ -15,6 +15,8 @@ class GameHandler {
         this.playersCountBeforeSwitch = 0;
         this.phase = 'pre-flop';
         this.lastPlay = 'bet';
+
+        this.expectedAnswers = [];
     }
 
     init () {
@@ -25,8 +27,9 @@ class GameHandler {
         preloader.preload ();
 
         // Create players
-        this.createPlayer ('user', false, 0);
-        this.createPlayer ('gemini', true, 1);
+        this.createPlayer ('User', false, 0);
+        this.createPlayer ('Gemini', true, 1);
+        this.createPlayer ('Bob', true, 2);
 
         this.startNewHand ();
     }
@@ -104,7 +107,7 @@ class GameHandler {
         this.curBtn++;
         if (this.curBtn >= this.players.length) this.curBtn = 0;
 
-        let positions = ['BB', 'BTN'],
+        let positions = ['', 'BB', 'BTN'],
             curPlayerToAssign = this.curBtn;
         while (positions.length > 0) {
             let curPlayer = this.players [curPlayerToAssign];
@@ -132,6 +135,7 @@ class GameHandler {
         }
         this.debugLog (`Doing action ${action} for ${player.name} with amount ${amount}`);
         amount = (isNaN (amount) ? 0 : Number (amount));
+        this.debugLog (`amount is ${amount}`);
 
         switch (action) {
             case 'check': case 'checks':
@@ -290,8 +294,8 @@ class GameHandler {
                 this.addHandHistory (`Showdown`);
 
                 this.revealAllHand ();
-                let winningPlayer = handEvaluator.compareHands ();
-                this.awardPot (winningPlayer);
+                let winningPlayers = handEvaluator.compareHands ();
+                this.awardPot (winningPlayers);
                 break;
         }
 
@@ -341,9 +345,16 @@ class GameHandler {
 
     async askAIForDecision (){
         let msg = `Let's play poker, situation: `;
-        msg += `${this.curTurn.handHistoryAI.join (', ')}. You will only reply with any of your current options: `;
-        msg += (this.curBet === 0) ? `CHECK, BET [amount], FOLD` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
+        msg += `${this.curTurn.handHistoryAI.join (', ')}. You are only allowed to reply with any of your current options: `;
+        msg += (this.curBet === 0) ? `CHECK, BET [amount].` : `CALL, RAISE [total bet, call chips + raise chips], FOLD. Then add an explanation seperated by :.`;
         msg += `Sample response: ${(this.curBet === 0) ? `BET 5` : `RAISE 5`} : [Explanation] `;
+
+        this.expectedAnswers = [];
+        if (this.curBet === 0) {
+            this.expectedAnswers = ['CHECK', 'BET'];
+        } else {
+            this.expectedAnswers = ['CALL', 'RAISE', 'FOLD'];
+        }
 
         this.debugLog ('Sending message to AI:');
         this.debugLog (msg);
@@ -353,7 +364,12 @@ class GameHandler {
         let response = await window.apiHandler.sendMessage (msg);
         this.debugLog (`Received response: ${response}`);
 
-        return response;
+        if (this.expectedAnswers.includes (response.split (' ')[0])) {
+            return response;
+        } else {
+            this.debugLog ('Response invalid. Will ask AI again...');
+            return this.askAIForDecision ();
+        }
     }
 
     revealAllHand (){
@@ -366,11 +382,26 @@ class GameHandler {
         });
     }
 
-    async awardPot (winner) {
-        if (!winner) winner = this.players.filter ((player)=>player.hand.length > 0)[0];
+    async awardPot (winners) {
+        if (winners.length > 1) {
+            this.debugLog (`Chopped pot.`);
+            this.addHandHistory (`Chopped pot.`);
 
-        this.debugLog (`Hand is done, winner is ${winner.name}`);
-        this.addHandHistory (`Hand is done, winner is ${winner.name}`);
+            let chop = this.pot / winners.length;
+            winners.forEach ((player) => {
+                player.stack += chop;
+            });
+        } else {
+            if (!winner) winner = this.players.filter ((player)=>player.hand.length > 0)[0];
+
+            this.debugLog (`Hand is done, winner is ${winner.name}`);
+            this.addHandHistory (`Hand is done, winner is ${winner.name}`);
+
+            let winner = winners [0];
+            winner.stack += this.pot;
+        }
+
+        this.pot = 0;
 
         this.players.forEach ((player) => {
             player.stack += player.betCur;
@@ -378,12 +409,9 @@ class GameHandler {
         });
         domTable.setBetForPlayers ();
 
-        winner.stack += this.pot;
-        this.pot = 0;
-
         this.updateAllPlayerTextsInDom ();
         domController.hideDisplay ();
-        domTable.showWin (winner);
+        domTable.showWin (winners);
 
         if (this.players [0].stack > 0 && this.players [1].stack > 0) {
             this.addHandHistory (`Next hand starts in 5 seconds...`);
