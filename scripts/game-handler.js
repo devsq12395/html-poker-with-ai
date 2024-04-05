@@ -88,6 +88,8 @@ class GameHandler {
                 return;
             }
 
+            player.sidePotToWin = 0;
+
             player.hand = this.dealCard (2);
             player.hand.forEach ((card) => {
                 domTable.createCardForPlayer (player, (player.isAI) ? 'back' : card);
@@ -189,6 +191,8 @@ class GameHandler {
                 if (amount > player.stack) {
                     amount = player.stack;
                     this.playersCountBeforeSwitch = this.countPlayersToPlay ();
+
+                    player.sidePotToWin = amount;
                 } else {
                     this.playersCountBeforeSwitch = this.countPlayersToPlay () - 1;
                 }
@@ -206,24 +210,27 @@ class GameHandler {
                 break;
 
             case 'raise': 
-                if (amount > player.stack + player.betCur) {
-                    amount = player.stack + player.betCur;
-                    this.playersCountBeforeSwitch = this.countPlayersToPlay ();
-                } else {
-                    this.playersCountBeforeSwitch = this.countPlayersToPlay () - 1;
-                }
-                this.curBet += amount;
-
+                let maxRaise = player.stack + player.betCur,
+                    actualRaise = Math.min(amount, maxRaise);
+                this.curBet += actualRaise;
+            
                 let amountToRaise = this.curBet - player.betCur;
                 player.betCur += amountToRaise;
                 player.stack -= amountToRaise;
-
-                this.debugLog (`${player.name} raised for ${amount} more`);
-                this.addHandHistory_AI (player, `{player} raised to ${this.curBet} chips. {pot-stat}`);
-                this.addHandHistory (`${player.name} raised to ${this.curBet} chips.`);
-
-                domTable.setBetForPlayer (player);
+            
+                if (amount > player.stack) {
+                    player.sidePotToWin = amount;
+                    this.playersCountBeforeSwitch = this.countPlayersToPlay();
+                } else {
+                    this.playersCountBeforeSwitch = this.countPlayersToPlay() - 1;
+                }
                 
+                
+                this.debugLog(`${player.name} raised for ${actualRaise} more`);
+                this.addHandHistory_AI(player, `${player.name} raised to ${this.curBet} chips. {pot-stat}`);
+                this.addHandHistory(`${player.name} raised to ${this.curBet} chips.`);
+                domTable.setBetForPlayer(player);
+            
                 this.lastPlay = 'raise';
                 
                 break;
@@ -452,7 +459,18 @@ class GameHandler {
                 player.betCur = 0;
             });
 
-            winner.stack += this.pot;
+            if (winner.sidePot > 0) {
+                let sidePotWin = winner.sidePot * 2;
+
+                if (this.pot > sidePotWin) {
+                    this.pot -= sidePotWin;
+                    winner.stack += sidePotWin;
+                    domTable.showWin ([winner]);
+                    this.awardPot (winners);
+                }
+            } else {
+                winner.stack += this.pot;
+            }
             
         } else if (winners.length > 1) {
             this.debugLog (`Chopped pot.`);

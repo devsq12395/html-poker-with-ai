@@ -7,6 +7,8 @@ class Player {
         this.stack = _GLOBALS.STARTING_STACK;
         this.betCur = 0;
         this.pos = '';
+        
+        this.sidePotToWin = 0;
 
         this.hand = [];
         this.handValue = 0;
