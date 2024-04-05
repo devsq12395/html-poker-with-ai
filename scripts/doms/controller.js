@@ -74,7 +74,16 @@ const domController = {
     },
 
     changeControlSituation (){
-        if (window.gameHandler.curBet === 0) {
+        if (window.gameHandler.curTurn.pos === 'BB' && window.gameHandler.curBet === _GLOBALS.BIG_BLIND) {
+            this.btns.check.style.display = 'block';
+            this.btns.call.style.display = 'none';
+            this.btns.bet.style.display = 'none';
+            this.btns.raise.style.display = 'block';
+            this.btns.fold.style.display = 'none';
+
+            this.isRaising = false;
+
+        }else if (window.gameHandler.curBet === 0) {
 
             this.btns.check.style.display = 'block';
             this.btns.call.style.display = 'none';

@@ -1,39 +1,31 @@
 
 
 
+- bob was skipped on river:
+	- i bet, gemini folded, then bob was skipped to showdown
 
 
-- when all other players are all in, no need to ask the player left on what to do, it wil be automatically check
+- start button
+	- setup phase?
 
-- player with 0 chips should not be dealt a hand
-	- player with 0 chips should not be counted as player to be awaited a decision
+- side pot
+
+- kickers for flush
+
 
 - victory should be when no one else has chips
 	- maybe iterate through all players?
 
 - invalid raise (when bet <= pot)
 
-- action animations
-
-- delay in changePhase
-
-- kicker
-
-- A2 won against AK???
-	- need to show what the players have on showdown
-
-- a fallback action if AI responded wrongly (i.e. checked when it's not in the optiions)
-	- need to ask the AI again for events like this
-
 - maybe dl the pictures so we can avoid preloading
 
-- handle gemini errors or input errors from gemini
-	- when gemini has errored, try to send the same question again
-- indicate big blind bets
 
 low prio:
-- chopped pot
-- kickers for showdown
+- more players
+- check parcel
+- action animations
+- delay in changePhase
 
 showdown error;
 Q 9 9 A 4    ai:3 3      me:8 9

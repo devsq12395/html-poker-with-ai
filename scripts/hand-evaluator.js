@@ -5,6 +5,8 @@ let handEvaluator = {
     compareHands (){
         let winningPlayers = [], winningPlayer = null;
         window.gameHandler.players.forEach ((player) => {
+            if (player.hand.length <= 0) return;
+
 			let handValueCalc = this.getHandValue ([...player.hand, ...window.gameHandler.board]);
             player.handValue = handValueCalc.value;
 			window.gameHandler.addHandHistory (`${player.name} has ${handValueCalc.valueStr}`);
@@ -42,7 +44,7 @@ let handEvaluator = {
 
         // Pairs
         let pairs = 0,
-            pairsValue = 0,
+            pairsValue = 0, pairsValue2 = 0,
             counts = {};
         values.forEach ((val) => {
             counts [val] = counts [val] ? counts [val] + 1 : 1;
@@ -50,21 +52,33 @@ let handEvaluator = {
         Object.entries(counts).forEach(([val, count]) => {
             if (count === 2) {
                 pairs++;
-                pairsValue = Math.max(pairsValue, parseInt (val));
+                if (pairsValue === 0) {
+                    pairsValue = parseInt (val);
+                } else {
+                    if (pairsValue > parseInt (val)) {
+                        pairsValue2 = Math.max(pairsValue2, parseInt (val));
+                    } else {
+                        let twoPairTemp = pairsValue;
+                        pairsValue = parseInt (val);
+                        pairsValue2 = twoPairTemp;
+                    }
+                }
+                
             }
         });
         if (pairs === 1) {
-            value = Math.max (value, pairsValue + 1000);
+            value = Math.max (value, pairsValue * 100 + 10000);
 			valueStr = `One Pair`;
-        } else if (pairs === 2) {
-            value = Math.max (value, pairsValue + 2000);
+        } else if (pairs >= 2) {
+            value = Math.max (value, pairsValue * 100 + pairsValue2 * 10 + 40000);
 			valueStr = `Two Pair`;
         }
         // Count kickers - Pairs and High Card
         values.forEach ((val) => {
-            if (counts [val] <= 0) {
+            if (val != pairsValue) {
                 value += parseInt (val);
             }
+            console.log (`value with kicker is ${value}`);
         });
 
         // Three-of-a-kind
@@ -75,17 +89,16 @@ let handEvaluator = {
                 trips++;
                 tripsValue = Math.max(tripsValue, parseInt (val));
 				valueStr = `Three-of-a-kind`;
-
-                // Count kickers - Three-of-a-kind
-                values.forEach ((val) => {
-                    if (counts [val] < 3) {
-                        value += parseInt (val);
-                    }
-                });
             }
         });
         if (trips >= 1) {
-            value = Math.max (value, tripsValue + 10000);
+            value = Math.max (value, tripsValue + 100000);
+            // Count kickers - Three-of-a-kind
+            values.forEach ((val) => {
+                if (counts [val] < 3) {
+                    value += parseInt (val);
+                }
+            });
         }
 
         // Straight
@@ -93,6 +106,8 @@ let handEvaluator = {
             strChain = 1;
         values.sort((a, b) => a - b);
         values.forEach((val, index, arr) => {
+            if (val === arr[index + 1]) return;
+
             if (index < arr.length - 1 && val + 1 === arr[index + 1]) {
                 strChain++;
                 strMaxVal = arr[index + 1];
@@ -104,7 +119,7 @@ let handEvaluator = {
             }
         });
         if (strChain >= 5) {
-            value = 100000 + strMaxVal;
+            value = 1000000 + strMaxVal;
 			valueStr = `Straight`;
         }
 
@@ -131,14 +146,28 @@ let handEvaluator = {
             });
 			
 			valueStr = `Flush`;
-            value = 1000000 + flushHighestVal;
+            value = 10000000 + flushHighestVal;
             isFlush = true;
         }
 
         // Full House
         if (pairs >= 1 && trips >= 1){
-            value = 10000000 + tripsValue * 10000 + pairsValue;
+            value = 100000000 + tripsValue * 100000 + pairsValue;
 			valueStr = `Full House`;
+        }
+
+        // Four-of-a-kind
+        let quads = 0,
+            quadsValue = 0;
+        Object.entries(counts).forEach(([val, count]) => {
+            if (count === 4) {
+                quads++;
+                quadsValue = Math.max(quadsValue, parseInt (val));
+				valueStr = `Four-of-a-kind`;
+            }
+        });
+        if (quads >= 1) {
+            value = Math.max (value, quadsValue + 1000000000);
         }
 
         // Straight Flush
@@ -163,7 +192,7 @@ let handEvaluator = {
                 }
             });
             if (strFlushChain >= 5) {
-                value = 1000000000 + strFlushMaxVal;
+                value = 1000000000000 + strFlushMaxVal;
 				valueStr = `Straight Flush`;
             }
         }

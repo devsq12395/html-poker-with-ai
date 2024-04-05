@@ -6,7 +6,7 @@ class GameHandler {
         this.pot = 0;
         this.curBet = 0;
         this.curTurn = null;
-        this.curBtn = 0;
+        this.curBtn = -1;
 
         this.handHistory = [];
         this.deck = [];
@@ -83,6 +83,11 @@ class GameHandler {
         domTable.hideWin ();
 
         this.players.forEach ((player) => {
+            if (player.stack <= 0) {
+                player.hand = [];
+                return;
+            }
+
             player.hand = this.dealCard (2);
             player.hand.forEach ((card) => {
                 domTable.createCardForPlayer (player, (player.isAI) ? 'back' : card);
@@ -92,7 +97,7 @@ class GameHandler {
             player.handHistoryAI = [];
             this.addHandHistory_AI (player, `You are dealt ${player.hand[0]} & ${player.hand[1]}`, false);
         });
-        this.playersCountBeforeSwitch = this.players.length - 1;
+        this.playersCountBeforeSwitch = this.countPlayersToPlay ();
         this.assignPositions ();
 
         this.updateAllPlayerTextsInDom ();
@@ -107,26 +112,58 @@ class GameHandler {
         this.curBtn++;
         if (this.curBtn >= this.players.length) this.curBtn = 0;
 
-        let positions = ['', 'BB', 'BTN'],
-            curPlayerToAssign = this.curBtn;
+        let pCount = this.countPlayersToPlay (),
+            positions = (pCount > 2) ? ['BTN', 'SB', 'BB'] : ['BTN', 'BB'],
+            curPlayerToAssign = this.curBtn,
+            pSB = null, pBB = null;
+        
         while (positions.length > 0) {
             let curPlayer = this.players [curPlayerToAssign];
+            if (curPlayer.stack <= 0) {
+                curPlayerToAssign++;
+                if (curPlayerToAssign > this.players.length - 1) curPlayerToAssign = 0;
+
+                continue;
+            }
 
             this.debugLog (`assigning position of ${positions[0]} to ${curPlayer.name}`);
-            this.addHandHistory_AI (curPlayer, `{player} position: ${positions[0]}`);
+            this.addHandHistory_AI (curPlayer, `{player} position: ${positions[0]} has ${curPlayer.stack} chips`);
             curPlayer.pos = positions [0];
 
-            if (curPlayer.pos == 'BB') {
-                this.debugLog (`${curPlayer.name} is betting the big blind`);
-
-                this.curTurn = curPlayer;
-                this.player_doAction (curPlayer, 'bet', _GLOBALS.BIG_BLIND);
+            switch (curPlayer.pos) {
+                case 'SB': 
+                    pSB = curPlayer; 
+                    break;
+                case 'BB': 
+                    pBB = curPlayer; 
+                    this.curTurn = curPlayer; 
+                    break;
             }
 
             positions.splice (0, 1);
             curPlayerToAssign++;
             if (curPlayerToAssign > this.players.length - 1) curPlayerToAssign = 0;
         }
+
+        if (pSB) this.player_putBlind (pSB, _GLOBALS.SMALL_BLIND);
+        if (pBB) this.player_putBlind (pBB, _GLOBALS.BIG_BLIND);
+        this.changeTurn ();
+    }
+
+    player_putBlind (player, amount){
+        if (player.stack < amount) {
+            amount = player.stack;
+        }
+        player.betCur = amount;
+        player.stack -= amount;
+
+        this.debugLog (`${player.name} puts a blind of ${amount}`);
+        this.addHandHistory_AI (player, `{player} puts a blind of ${amount}. {pot-stat}`);
+        this.addHandHistory (`${player.name} puts a blind of ${amount}.`);
+
+        this.curBet = amount;
+        
+        domTable.setBetForPlayer (player);
     }
 
     player_doAction (player, action, amount) {
@@ -138,6 +175,7 @@ class GameHandler {
         this.debugLog (`amount is ${amount}`);
 
         switch (action) {
+
             case 'check': case 'checks':
                 this.debugLog (`${player.name} checks`);
                 this.addHandHistory_AI (player, `{player} checks`);
@@ -145,9 +183,15 @@ class GameHandler {
 
                 this.playersCountBeforeSwitch--;
                 console.log (this.playersCountBeforeSwitch);
-
                 break;
+
             case 'bet': 
+                if (amount > player.stack) {
+                    amount = player.stack;
+                    this.playersCountBeforeSwitch = this.countPlayersToPlay ();
+                } else {
+                    this.playersCountBeforeSwitch = this.countPlayersToPlay () - 1;
+                }
                 player.betCur = amount;
                 player.stack -= amount;
 
@@ -157,12 +201,17 @@ class GameHandler {
 
                 this.lastPlay = 'bet';
                 this.curBet = amount;
-                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
                 
                 domTable.setBetForPlayer (player);
-
                 break;
+
             case 'raise': 
+                if (amount > player.stack + player.betCur) {
+                    amount = player.stack + player.betCur;
+                    this.playersCountBeforeSwitch = this.countPlayersToPlay ();
+                } else {
+                    this.playersCountBeforeSwitch = this.countPlayersToPlay () - 1;
+                }
                 this.curBet += amount;
 
                 let amountToRaise = this.curBet - player.betCur;
@@ -176,9 +225,9 @@ class GameHandler {
                 domTable.setBetForPlayer (player);
                 
                 this.lastPlay = 'raise';
-                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length - 1;
-
+                
                 break;
+
             case 'call': case 'calls':
                 if (this.curBet > player.stack) {
                     player.betCur += player.stack;
@@ -195,8 +244,8 @@ class GameHandler {
                 domTable.setBetForPlayer (player);
 
                 this.playersCountBeforeSwitch--;
-
                 break;
+
             case 'fold':case 'folds':
                 player.hand = [];
                 domTable.removeCardsForPlayer (player);
@@ -206,7 +255,6 @@ class GameHandler {
                 this.addHandHistory (`${player.name} folds.`);
 
                 this.playersCountBeforeSwitch--;
-
                 break;
 
         }
@@ -221,6 +269,7 @@ class GameHandler {
         this.debugLog (`changing the turn`);
 
         let playersLeft = this.players.filter ((player)=>player.hand.length > 0).length;
+        this.debugLog (`players left = ${playersLeft}`);
 
         if (playersLeft > 1) {
             if (this.playersCountBeforeSwitch > 0) {
@@ -258,7 +307,7 @@ class GameHandler {
                 this.addHandHistory_AI (null, `Flop is ${this.board.join (', ')}`);
                 this.addHandHistory (`Flop is ${this.board.join (', ')}`);
                 
-                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
+                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0 && player.stack > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
                 break;
@@ -272,7 +321,7 @@ class GameHandler {
                 this.addHandHistory_AI (null, `Turn is ${this.board [3]}`);
                 this.addHandHistory (`Turn is ${this.board [3]}`);
                 
-                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
+                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0 && player.stack > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
 
@@ -287,7 +336,7 @@ class GameHandler {
                 this.addHandHistory_AI (null, `River is ${this.board [4]}`);
                 this.addHandHistory (`River is ${this.board [4]}`);
 
-                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0).length;
+                this.playersCountBeforeSwitch = this.players.filter ((player)=>player.hand.length > 0 && player.stack > 0).length;
                 this.curTurn = this.players.find ((player) => player.pos === 'BB');
                 this.switchCurTurn ();
                 break;
@@ -323,7 +372,7 @@ class GameHandler {
             }
         }
 
-        if (!isChangePhase) {
+        if (!isChangePhase && this.players.filter ((player)=>player.hand.length > 0).length > 1) {
             this.curTurn = this.players [curIndex];
 
             this.debugLog (`cur turn is now ${this.curTurn.name}`);
@@ -367,7 +416,7 @@ class GameHandler {
         let response = await window.apiHandler.sendMessage (msg);
         this.debugLog (`Received response: ${response}`);
 
-        if (this.expectedAnswers.includes (response.split (' ')[0])) {
+        if (response && this.expectedAnswers.includes (response.split (' ')[0])) {
             return response;
         } else {
             this.debugLog ('Response invalid. Will ask AI again...');
@@ -398,43 +447,55 @@ class GameHandler {
             this.debugLog (`Hand is done, winner is ${winner.name}`);
             this.addHandHistory (`Hand is done, winner is ${winner.name}`);
 
+            this.players.forEach ((player) => {
+                this.pot += player.betCur;
+                player.betCur = 0;
+            });
+
             winner.stack += this.pot;
             
         } else if (winners.length > 1) {
             this.debugLog (`Chopped pot.`);
             this.addHandHistory (`Chopped pot.`);
 
+            this.players.forEach ((player) => {
+                this.pot += player.betCur;
+                player.betCur = 0;
+            });
+
             let chop = this.pot / winners.length;
             winners.forEach ((player) => {
-                player.stack += chop;
+                player.stack += Math.round (chop);
             });
 
         }
 
         this.pot = 0;
-
-        this.players.forEach ((player) => {
-            player.stack += player.betCur;
-            player.betCur = 0;
-        });
+        
         domTable.setBetForPlayers ();
 
         this.updateAllPlayerTextsInDom ();
         domController.hideDisplay ();
         domTable.showWin (winners);
 
-        if (this.players [0].stack > 0 && this.players [1].stack > 0) {
+        if (this.players.filter ((player) => player.stack > 0).length > 1) {
             this.addHandHistory (`Next hand starts in 5 seconds...`);
             await new Promise(resolve => setTimeout(resolve, 5000));
 
             domController.showDisplay ();
             this.startNewHand ();
         } else {
-            if (this.players [0].stack <= 0) {
-                domPopup.showPopup ('You Lose!', 'You are out of chips!');
-            } else if (this.players [1].stack <= 0) {
-                domPopup.showPopup ('You Win!', 'AI is out of chips!');
-            }
+            this.declareWinner ();
+        }
+    }
+
+    declareWinner (){
+        let winner = this.players.filter ((player) => player.stack > 0)[0];
+
+        if (winner.id === this.players[0].id) {
+            domPopup.showPopup ('You Win!', 'All enemies are out of chips!');
+        } else {
+            domPopup.showPopup ('You Lose!', 'Better luck next time!');
         }
     }
 
@@ -444,11 +505,14 @@ class GameHandler {
     }
 
     addHandHistory_AI (playerDoingAction, action, addToNotPlayer = true) {
+        let actionOrig = action;
+
         this.players.forEach ((playerToAddHistory) => {
             if (playerDoingAction === null) playerDoingAction = playerToAddHistory;
             if (!playerToAddHistory.isAI) return;
             if (!addToNotPlayer && playerDoingAction.id !== playerToAddHistory.id) return;
 
+            action = actionOrig;
             action = action.replace (/{pot-stat}/g, `({player} cur chips: ${playerDoingAction.stack})`);
             action = action.replace (/{player}/g, (playerDoingAction.id === playerToAddHistory.id) ? 'You' : playerDoingAction.name);
 
@@ -464,6 +528,10 @@ class GameHandler {
 
         domTable.removeAllCardsOnBoard ();
         this.board.forEach ((card) => domTable.createCardToBoard (card));
+    }
+
+    countPlayersToPlay (){
+        return this.players.filter ((player)=>player.hand.length > 0 && player.stack > 0).length;
     }
 
     debugLog (msg){
