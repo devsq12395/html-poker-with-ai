@@ -3,6 +3,7 @@
 @import "styles/table.css";
 @import "styles/control.css";
 @import "styles/popup.css";
+@import "styles/tutorial.css";
 
 * {
 	margin: 0px;

@@ -1,20 +1,9 @@
 
 
 
-- bob was skipped on river:
-	- i bet, gemini folded, then bob was skipped to showdown
-
 
 - start button
 	- setup phase?
-
-- side pot
-
-- kickers for flush
-
-
-- victory should be when no one else has chips
-	- maybe iterate through all players?
 
 - invalid raise (when bet <= pot)
 
@@ -23,25 +12,9 @@
 
 low prio:
 - more players
-- check parcel
 - action animations
 - delay in changePhase
 
-showdown error;
-Q 9 9 A 4    ai:3 3      me:8 9
-
-to do:
-- showdown
-- start new hand button
-- board cards
-- big blind bet
-- on controllers, check for illegal moves
-	- better if we disable illegal buttons, should be easy i think
-- control buttons, should trigger for curPlayer
-- on AI history, add the pre-flop stacks of all players
-- prove the AI's decision is logical by adding a EXPL: object on its response
-	- so we will have to make the AI respond in json
-- the api key is in github. you will have to disable it.
 
 1. looking for free apis and making them work
 	- found that gemini works

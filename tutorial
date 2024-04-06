@@ -1,0 +1,49 @@
+
+
+MJS
+harvest the crops - fixed multilang, let's prepare to submit
+	- also has bgm issues
+flappy chicken - button issues on lang selector
+	- apparently there are errors on drawBg function from 
+	EntitySLShowBtn - pyon commented them out, then i removed the 
+	comment. let's build and see what happens
+
+
+Poker Game
+- 5 card spaces
+- need tutorial ideas
+- tooltips:
+	- call: Calls the current bet of {} chips
+	- raise: Increase the current bet to {} chips
+	- bet: Place a bet of {} chips
+	- fold: Surrender your hand and forfeits the current round
+	- check: Decline to bet and pass the action to the next player
+
+- objective: for each round, win the pot by:
+	- having the strongest card combination in showdown
+	- or make all your enemies fold their hand
+
+- parts
+
+for each round:
+1. receive 2 cards in your hand
+2. there will be four betting rounds.
+	- Pre-flop - Receive 2 cards in your hand. Players will take turns
+betting.
+	- Flop - 3 community cards are revealed. Players will take turns
+betting again.
+	- Turn - 1 more community card is revealed. Players will again take
+turns on betting.
+	- River - The last community card is revealed. Also the last betting
+round for players still in the hand.
+	- Showdown - All players reveals their hand. The player with the 
+strongest combination wins pot.
+
+On betting rounds, you can: {INSERT HERE}
+
+
+
+New Horizons
+- create war shredder
+- create slime king
+- let's complete all vic missions
