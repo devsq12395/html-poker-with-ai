@@ -12,6 +12,9 @@ class GameHandler {
         this.deck = [];
         this.board = [];
 
+        this.isGameOver = false;
+        this.rankings = [];
+
         this.playersCountBeforeSwitch = 0;
         this.phase = 'pre-flop';
         this.lastPlay = 'bet';
@@ -24,6 +27,9 @@ class GameHandler {
         domController.setup ();
         domPopup.setup ();
         domPopup.hidePopup ();
+        domTutorial.setup ();
+        domHeader.setup ();
+        domWin.setup ();
         preloader.preload ();
 
         // Create players
@@ -31,7 +37,7 @@ class GameHandler {
         this.createPlayer ('Gemini', true, 1);
         this.createPlayer ('Bob', true, 2);
 
-        this.startNewHand ();
+        this.startNewGame ();
     }
 
     createPlayer (name, isAI, index) { this.debugLog (`joining new player ${name}. isAI = ${isAI}`);
@@ -39,6 +45,21 @@ class GameHandler {
         this.players.push (newPlayer);
 
         domTable.createPlayer (name, index);
+    }
+
+    startNewGame (){
+        this.isGameOver = false;
+        this.rankings = [];
+
+        this.players.forEach ((player) => {
+            player.stack = _GLOBALS.STARTING_STACK;
+        });
+
+        this.startNewHand ();
+
+        if (!this.curTurn.id.isAI) {
+            domController.showDisplay ();
+        }
     }
 
     shuffleDeck () {
@@ -496,30 +517,40 @@ class GameHandler {
         domController.hideDisplay ();
         domTable.showWin (winners);
 
-        if (this.players.filter ((player) => player.stack > 0).length > 1) {
-            this.addHandHistory (`Next hand starts in 5 seconds...`);
-            await new Promise(resolve => setTimeout(resolve, 5000));
+        this.players.filter ((player) => player.stack <= 0).forEach ((player) => {
+            if (!this.rankings.includes (player)) {
+                this.rankings.unshift (player);
 
-            domController.showDisplay ();
-            this.startNewHand ();
-        } else {
-            this.declareWinner ();
+                if (player.id === 0) {
+                    this.endGame ();
+                }
+            }
+        });
+        
+        if (!this.isGameOver) {
+            if (this.countPlayersStillPlaying () > 1) {
+                this.addHandHistory (`Next hand starts in 5 seconds...`);
+                await new Promise(resolve => setTimeout(resolve, 5000));
+    
+                domController.showDisplay ();
+                this.startNewHand ();
+            } else {
+                this.endGame ();
+            }
         }
     }
 
-    declareWinner (){
-        let winner = this.players.filter ((player) => player.stack > 0)[0];
-
-        if (winner.id === this.players[0].id) {
-            domPopup.showPopup ('You Win!', 'All enemies are out of chips!');
-        } else {
-            domPopup.showPopup ('You Lose!', 'Better luck next time!');
-        }
+    endGame (){
+        this.isGameOver = true;
+        
+        let rankingPlayer = this.rankings.indexOf (this.players [0]);
+        if (rankingPlayer === -1) rankingPlayer = 0;
+        rankingPlayer += this.players.filter ((player)=>player.stack > 0 && player.id !== 0).length;
+        domWin.show (rankingPlayer);
     }
 
     addHandHistory (action) {
         this.handHistory.push (action);
-        domHandHistory.addHistory (action);
     }
 
     addHandHistory_AI (playerDoingAction, action, addToNotPlayer = true) {
@@ -548,9 +579,8 @@ class GameHandler {
         this.board.forEach ((card) => domTable.createCardToBoard (card));
     }
 
-    countPlayersToPlay (){
-        return this.players.filter ((player)=>player.hand.length > 0 && player.stack > 0).length;
-    }
+    countPlayersToPlay (){ return this.players.filter ((player)=>player.hand.length > 0 && player.stack > 0).length; }
+    countPlayersStillPlaying (){ return this.players.filter ((player)=>player.stack > 0).length; }
 
     debugLog (msg){
         console.log (msg);

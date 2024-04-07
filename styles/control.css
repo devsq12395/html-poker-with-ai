@@ -14,10 +14,16 @@
     padding: 10px;
     margin-bottom: 20px;
 
+    font-family: "DM Sans", sans-serif, Arial;
+
     display: flex;
     flex-direction: column;
     justify-content: center;
     gap: 20px;
+}
+
+#bet-input {
+    cursor: pointer;
 }
 
 .control-btns {
@@ -39,6 +45,8 @@
     border-radius: 4px;
     cursor: pointer;
     transition: background-color 0.3s ease;
+
+    font-family: "DM Sans", sans-serif, Arial;
 }
 
 .control-btn:hover {

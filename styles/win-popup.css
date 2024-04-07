@@ -1,0 +1,78 @@
+
+
+
+
+.win-popup {
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.75);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+
+    overflow-y: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.win-window {
+    width: 40%;
+    height: 60%;
+    background-color: #eee;
+    border: 1px solid #222;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    justify-content:flex-start;
+    align-items: center;
+}
+
+.win-txts {
+    width: 100%;
+    height: 60%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+
+    font-family: "DM Sans", sans-serif, Arial;
+}
+
+.win-title {
+    color: var(--light-blue-1); 
+    text-shadow:  -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; 
+    font-size: 8vw;
+    overflow: hidden;
+}
+
+.win-desc {
+    font-size: 2vw;
+    overflow: hidden;
+    text-align: center;
+}
+
+.win-popup-btn {
+    width: 40%;
+    height: 10%;
+
+    background-color: #007bff;
+    border: none;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
+    
+    cursor: pointer;
+    color: #fff;
+    font-family: "DM Sans", sans-serif, Arial;
+    font-size: 1.5vw;
+
+    margin-top: auto;
+    margin-bottom: 5%;
+}

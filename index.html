@@ -4,20 +4,28 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Poker Trainer</title>
+
+    <!-- Fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Montserrat:ital,wght@0,100..900;1,100..900&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="style.css">
   </head>
   <body>
 
-
+  <div class="header">
+    <img id="nav-btn" src="media/imgs/nav-btn.png">
+  </div>
+  
+  <nav id="nav-bar">
+    <ul>
+      <li class="nav-bar-list"><p>Home</p></li>
+      <li class="nav-bar-list"><p>About</p></li>
+    </ul>
+  </nav>
 
   <div class="main-grid">
-    <div class="hand-history">
-      <p class="hand-history-txt"></p>
-
-      <div class="hand-history-btns">
-        <button id="btn-show-history">Show History</button>
-      </div>
-    </div>
 
     <div class="table">
       
@@ -52,10 +60,21 @@
     </div>
   </div>
 
+  <div class="win-popup">
+    <!--img id="win-img" src="media/imgs/tut-01.png"-->
+    <div class="win-window">
+      <div class="win-txts">
+        <h1 class="win-title">You Win!</h1>
+        <h1 class="win-desc">Ranking: 1st</h1>
+      </div>
+      <button class="win-popup-btn win-popup-btn-restart">Play Again</button>
+    </div>
+  </div>
+
   <div class="tutorial">
     <div class="tutorial-window">
       <h1 class="tutorial-title">Tutorial</h2>
-      <img class="tutorial-image" src="media/imgs/tut-sample.png">
+      <img class="tutorial-image" src="media/imgs/tut-06.png">
       <button class="btn-tutorial btn-tutorial-next">Next</button>
     </div>
   </div>
@@ -65,8 +84,10 @@
   <script src="scripts/hand-evaluator.js"></script>
   <script src="scripts/doms/controller.js"></script>
   <script src="scripts/doms/table.js"></script>
-  <script src="scripts/doms/hand-history.js"></script>
   <script src="scripts/doms/popup.js"></script>
+  <script src="scripts/doms/tutorial.js"></script>
+  <script src="scripts/doms/header.js"></script>
+  <script src="scripts/doms/win.js"></script>
 
   <script src="scripts/api-handler.js"></script>
   <script src="scripts/globals.js"></script>

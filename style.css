@@ -1,9 +1,16 @@
 
-@import "styles/hand-history.css";
+@import "styles/header.css";
 @import "styles/table.css";
 @import "styles/control.css";
 @import "styles/popup.css";
 @import "styles/tutorial.css";
+@import "styles/win-popup.css";
+
+:root {
+	--light-blue-1: #3acee9;
+    --light-blue-2: #069aa5;
+	--dark-gray-1: #222;
+}
 
 * {
 	margin: 0px;
@@ -25,5 +32,11 @@ html, body {
 	grid-template-columns: repeat(3, 1fr);
     grid-template-rows: repeat(3, 1fr);
 	gap: 20px;
-    margin: 20px;
+    margin: 20px 20px 20px 20px;
+}
+
+img {
+    background-size: cover;
+    background-position: center; 
+    background-repeat: no-repeat;
 }

@@ -9,8 +9,8 @@ const domTable = {
 
     tablePositions: [
         {x: 43, y: 26},
-        {x: 20, y: -5},
-        {x: 70, y: -5},
+        {x: 15, y: 2},
+        {x: 70, y: 2},
     ],
 
     playerDivs: {},

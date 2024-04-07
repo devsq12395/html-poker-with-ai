@@ -53,6 +53,11 @@ const domController = {
     },
 
     callbackRaise (){
+        if (this.betInput.value <= 0) {
+            alert ('Raise must be higher than the bet.');
+            return;
+        }
+
         let val = Number (this.betInput.value),
             curTurn = window.gameHandler.curTurn;
         window.gameHandler.player_doAction (`${curTurn.name}`, 'raise', val);
