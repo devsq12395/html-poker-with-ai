@@ -23,34 +23,20 @@ const domTable = {
         {x: '76%', y: '-220%'},],
 
         // Tablet
-        [{x: '36%', y: '-55%'},
-        {x: '-5%', y: '-200%'},
-        {x: '75%', y: '-282%'},],
+        [{x: '36%', y: '10%'},
+        {x: '-5%', y: '-105%'},
+        {x: '75%', y: '-148%'},],
 
         // Phones
-        [{x: '36%', y: '-55%'},
-        {x: '-15%', y: '-200%'},
-        {x: '85%', y: '-282%'},],
+        [{x: '12%', y: '-26%'},
+        {x: '12%', y: '-150%'},
+        {x: '60%', y: '-138%'},],
     ],
 
     playerDivs: {},
 
     setup (){
         window.addEventListener('resize', this.mediaQueryEvent.bind (this));
-    },
-
-    mediaQueryEvent_normal (event){
-        if (!event.matches) return;
-        
-        this.tablePositions = this.tablePositions_normal; console.log ('normal');
-        this.mediaQueryEvent ();
-    },
-
-    mediaQueryEvent_tablet (event){
-        if (!event.matches) return;
-
-        this.tablePositions = this.tablePositions_tablet; console.log ('tablet');
-        this.mediaQueryEvent ();
     },
 
     mediaQueryEvent (){

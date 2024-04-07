@@ -39,7 +39,6 @@
     height: 100%;
 
     margin-right: 5px;
-    padding: 8px;
     background-color: #f0f0f0;
     border: 1px solid #ccc;
     border-radius: 4px;
@@ -47,6 +46,8 @@
     transition: background-color 0.3s ease;
 
     font-family: "DM Sans", sans-serif, Arial;
+
+    overflow: hidden;
 }
 
 .control-btn:hover {
@@ -62,4 +63,36 @@
     height: 14%;
     margin-left: 18%;
     overflow-y: hidden;
+}
+
+/* Tablets */
+@media only screen and (max-width: 876px) {
+    .control {
+        grid-column: 1 / span 3;
+        width: 75%;
+        height: 100%;
+        margin: 0px auto 0px auto;
+    }
+}
+
+/* Phones */
+@media only screen and (max-width: 528px) {
+    .control {
+        grid-column: 1 / span 3;
+        width: 75%;
+        height: 100%;
+        margin: 0px auto 0px auto;
+        font-size: 0.75rem;
+        justify-content: flex-start;
+        gap: 5px;
+    }
+
+    .control-btn {
+        height: 55%;
+        font-size: 0.5rem;
+    }
+
+    #btn-ask {
+        
+    }
 }

@@ -40,3 +40,17 @@ img {
     background-position: center; 
     background-repeat: no-repeat;
 }
+
+/* Tablets */
+@media only screen and (max-width: 876px) {
+    html, body {
+        height: 1000px;
+    }
+}
+
+/* Phones */
+@media only screen and (max-width: 528px) {
+    html, body {
+        height: 750px;
+    }
+}
