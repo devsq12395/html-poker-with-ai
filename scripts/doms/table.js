@@ -54,7 +54,7 @@ const domTable = {
     },
 
     mediaQueryEvent (){
-        let breakpoints = [0, 1072, 768, 528], breakpointSize = -1;
+        let breakpoints = [0, 1072, 876, 528], breakpointSize = -1;
         breakpoints.forEach ((size, index) => {
             if (window.innerWidth <= size) {
                 breakpointSize = index;
