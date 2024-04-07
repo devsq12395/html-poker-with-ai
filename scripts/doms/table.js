@@ -7,13 +7,70 @@ const domTable = {
     divBoardCards:      document.querySelector ('.board-cards'),
     potTxt:             document.querySelector ('#pot-txt'),
 
-    tablePositions: [
-        {x: 43, y: 26},
-        {x: 15, y: 2},
-        {x: 70, y: 2},
+    mediaQuery_normal:  window.matchMedia ('(max-width: 769px'),
+    mediaQuery_tablet:  window.matchMedia ('(min-width: 768px'),
+
+    tablePositions: [],
+    tablePositionsList: [
+        // Normal
+        [{x: '41%', y: '-30%'},
+        {x: '0%', y: '-150%'},
+        {x: '80%', y: '-220%'},],
+
+        // Laptops
+        [{x: '41%', y: '-30%'},
+        {x: '5%', y: '-150%'},
+        {x: '76%', y: '-220%'},],
+
+        // Tablet
+        [{x: '36%', y: '-55%'},
+        {x: '-5%', y: '-200%'},
+        {x: '75%', y: '-282%'},],
+
+        // Phones
+        [{x: '36%', y: '-55%'},
+        {x: '-15%', y: '-200%'},
+        {x: '85%', y: '-282%'},],
     ],
 
     playerDivs: {},
+
+    setup (){
+        window.addEventListener('resize', this.mediaQueryEvent.bind (this));
+    },
+
+    mediaQueryEvent_normal (event){
+        if (!event.matches) return;
+        
+        this.tablePositions = this.tablePositions_normal; console.log ('normal');
+        this.mediaQueryEvent ();
+    },
+
+    mediaQueryEvent_tablet (event){
+        if (!event.matches) return;
+
+        this.tablePositions = this.tablePositions_tablet; console.log ('tablet');
+        this.mediaQueryEvent ();
+    },
+
+    mediaQueryEvent (){
+        let breakpoints = [0, 1072, 768, 528], breakpointSize = -1;
+        breakpoints.forEach ((size, index) => {
+            if (window.innerWidth <= size) {
+                breakpointSize = index;
+            }
+        });
+        if (breakpointSize === -1) breakpointSize = 0; console.log (breakpointSize);
+        this.tablePositions = this.tablePositionsList [breakpointSize];
+
+        window.gameHandler.players.forEach ((player) => {
+            let div             = this.playerDivs [player.name].div,
+                pos             = this.tablePositions [player.id];
+
+            div.style.left      = pos.x;
+            div.style.top       = pos.y;
+        });
+    },
 
     createPlayer (name, index) {
         let div                     = document.createElement ('div'),
@@ -32,9 +89,11 @@ const domTable = {
         divCards.classList.add ('table-cards');
         div.classList.add ('table-player');
 
+        this.tablePositions = this.tablePositionsList [0];
+
         let pos             = this.tablePositions [index];
-        div.style.left      = `${pos.x}%`;
-        div.style.top       = `${pos.y}%`;
+        div.style.left      = pos.x;
+        div.style.top       = pos.y;
 
         Object.entries (elems).forEach (([key, value]) => divPlayerBox.appendChild (value));
         
@@ -57,8 +116,8 @@ const domTable = {
             txt = document.createElement ('p');
 
         div.classList.add ('bet-imgs-div');
-        win.classList.add ('bet-img', 'img-win');
-        divBg.classList.add ('bet-img', 'img-bet');
+        win.classList.add ('bet-imgs', 'img-win');
+        divBg.classList.add ('bet-imgs', 'img-bet');
         
         txt.innerHTML = '';
         divBg.appendChild (txt);

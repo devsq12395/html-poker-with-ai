@@ -11,7 +11,7 @@ const domTutorial = {
     images: [],
 
     curPage: 0,
-    isEnabled: true,
+    isEnabled: false,
 
     setup () {
         if (this.isEnabled) {

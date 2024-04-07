@@ -30,12 +30,13 @@ class GameHandler {
         domTutorial.setup ();
         domHeader.setup ();
         domWin.setup ();
+        domTable.setup ();
         preloader.preload ();
 
         // Create players
         this.createPlayer ('User', false, 0);
-        this.createPlayer ('Gemini', true, 1);
-        this.createPlayer ('Bob', true, 2);
+        this.createPlayer ('Gemini', false, 1);
+        this.createPlayer ('Bob', false, 2);
 
         this.startNewGame ();
     }
