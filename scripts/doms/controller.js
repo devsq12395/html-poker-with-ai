@@ -10,6 +10,8 @@ const domController = {
         bet:            document.querySelector ('#btn-bet'),
         raise:           document.querySelector ('#btn-raise'),
         fold:           document.querySelector ('#btn-fold'),
+
+        askAI:           document.querySelector ('#btn-ask'),
     },
 
     labelChips:         document.querySelector ('#label-chips'),
@@ -22,6 +24,7 @@ const domController = {
         this.btns.bet.addEventListener ('click', this.callbackBet.bind (this));
         this.btns.raise.addEventListener ('click', this.callbackRaise.bind (this));
         this.btns.fold.addEventListener ('click', this.callbackFold.bind (this));
+        this.btns.askAI.addEventListener ('click', this.callbackAsk.bind (this));
 
         // Bet input
         this.betInput.addEventListener ('input', function() {
@@ -66,6 +69,10 @@ const domController = {
     callbackFold (){
         let curTurn = window.gameHandler.curTurn;
         window.gameHandler.player_doAction (`${curTurn.name}`, 'fold', 0);
+    },
+
+    callbackAsk (){
+        domPopup.showPopup ('Ask Gemini', 'Asking the AI...');
     },
 
     hideDisplay (){

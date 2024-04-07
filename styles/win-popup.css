@@ -20,8 +20,8 @@
 }
 
 .win-window {
-    width: 40%;
-    height: 60%;
+    width: 618px;
+    height: 579px;
     background-color: #eee;
     border: 1px solid #222;
     border-radius: 4px;
@@ -49,12 +49,12 @@
 .win-title {
     color: var(--light-blue-1); 
     text-shadow:  -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; 
-    font-size: 8vw;
+    font-size: 130px;
     overflow: hidden;
 }
 
 .win-desc {
-    font-size: 2vw;
+    font-size: 25px;
     overflow: hidden;
     text-align: center;
 }
@@ -71,8 +71,48 @@
     cursor: pointer;
     color: #fff;
     font-family: "DM Sans", sans-serif, Arial;
-    font-size: 1.5vw;
+    font-size: 20px;
 
     margin-top: auto;
     margin-bottom: 5%;
+}
+
+/* Tablets */
+@media only screen and (max-width: 876px) {
+    .win-window {
+        width: 522px;
+        height: 331px;
+    }
+
+    .win-title {
+        font-size: 100px;
+    }
+
+    .win-desc {
+        font-size: 25px;
+    }
+
+    .win-popup-btn {
+        font-size: 20px;
+    }
+}
+
+/* Phones */
+@media only screen and (max-width: 528px) {
+    .win-window {
+        width: 522px;
+        height: 331px;
+    }
+
+    .win-title {
+        font-size: 80px;
+    }
+
+    .win-desc {
+        font-size: 20px;
+    }
+
+    .win-popup-btn {
+        font-size: 15px;
+    }
 }

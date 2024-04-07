@@ -35,8 +35,8 @@ class GameHandler {
 
         // Create players
         this.createPlayer ('User', false, 0);
-        this.createPlayer ('Gemini', false, 1);
-        this.createPlayer ('Bob', false, 2);
+        this.createPlayer ('Gemini', true, 1);
+        this.createPlayer ('Bob', true, 2);
 
         this.startNewGame ();
     }
@@ -51,6 +51,7 @@ class GameHandler {
     startNewGame (){
         this.isGameOver = false;
         this.rankings = [];
+        this.curBtn = -1;
 
         this.players.forEach ((player) => {
             player.stack = _GLOBALS.STARTING_STACK;
@@ -559,7 +560,6 @@ class GameHandler {
 
         this.players.forEach ((playerToAddHistory) => {
             if (playerDoingAction === null) playerDoingAction = playerToAddHistory;
-            if (!playerToAddHistory.isAI) return;
             if (!addToNotPlayer && playerDoingAction.id !== playerToAddHistory.id) return;
 
             action = actionOrig;

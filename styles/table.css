@@ -166,7 +166,7 @@
     .table {
         width: 500px;
         height: 633px;
-        background-image: url('../media/imgs/table-landscape.png');
+        background-image: url('../media/imgs/table-portrait.png');
     }
 
     .table-player {
@@ -227,7 +227,6 @@
     .table {
         width: 400px;
         height: 433px;
-        background-image: url('../media/imgs/table-landscape.png');
     }
 
     .table-player {
@@ -241,7 +240,7 @@
     .table-player-box {
         width: 100%;
         height: 43px;
-        font-size: 0.6rem;
+        font-size: 0.5rem;
     }
 
     .table-player-box-avatar {
@@ -275,7 +274,7 @@
     }
 
     .table-pot {
-        top: 22%;
+        top: 30%;
         left: 25%;
     
         width: 50%;

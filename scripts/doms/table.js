@@ -7,9 +7,6 @@ const domTable = {
     divBoardCards:      document.querySelector ('.board-cards'),
     potTxt:             document.querySelector ('#pot-txt'),
 
-    mediaQuery_normal:  window.matchMedia ('(max-width: 769px'),
-    mediaQuery_tablet:  window.matchMedia ('(min-width: 768px'),
-
     tablePositions: [],
     tablePositionsList: [
         // Normal
@@ -28,8 +25,8 @@ const domTable = {
         {x: '75%', y: '-148%'},],
 
         // Phones
-        [{x: '12%', y: '-26%'},
-        {x: '12%', y: '-150%'},
+        [{x: '10%', y: '-26%'},
+        {x: '10%', y: '-150%'},
         {x: '60%', y: '-138%'},],
     ],
 
