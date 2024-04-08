@@ -123,7 +123,11 @@ const domTable = {
 
         div.classList.add ('table-card');
 
-        imgCard.src = `https://www.deckofcardsapi.com/static/img/${card}.png`;
+        if (card === 'empty') {
+            imgCard.src = `media/imgs/card-container.png`;
+        } else {
+            imgCard.src = `https://www.deckofcardsapi.com/static/img/${card}.png`;
+        }
         div.appendChild (imgCard);
 
         return div;

@@ -65,8 +65,8 @@
 /* Tablets */
 @media only screen and (max-width: 876px) {
     .tutorial-window {
-        width: 50%;
-        min-width: 450px;
-        height: 80%;
+        width: 40%;
+        min-width: 350px;
+        height: 90%;
     }
 }

@@ -73,6 +73,7 @@ const domController = {
 
     callbackAsk (){
         domPopup.showPopup ('Ask Gemini', 'Asking the AI...');
+        domPopup.askAI ();
     },
 
     hideDisplay (){

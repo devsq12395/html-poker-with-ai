@@ -2,20 +2,6 @@
 
 
 
-- start button
-	- setup phase?
-
-- invalid raise (when bet <= pot)
-
-- maybe dl the pictures so we can avoid preloading
-
-
-low prio:
-- more players
-- action animations
-- delay in changePhase
-
-
 1. looking for free apis and making them work
 	- found that gemini works
 2. tested a sample conversation, see if the AI will respond the way i want to

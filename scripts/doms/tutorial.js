@@ -12,24 +12,24 @@ const domTutorial = {
     imagesPort: [], imagesLandscape: [],
 
     curPage: 0,
-    isEnabled: true,
+    spawnOnStart: false,
 
     setup () {
-        if (this.isEnabled) {
-            let imgsCount = 0;
-            while (imgsCount < 6) {
-                this.imagesLandscape.push (`media/imgs/tut-0${imgsCount + 1}.png`);
-                this.imagesPort.push (`media/imgs/tut-portrait-0${imgsCount + 1}.png`);
-                imgsCount++;
-            }
-            this.img.src = this.images [0];
-
-            this.btnNext.addEventListener ('click', this.callbackNext.bind (this));
+        let imgsCount = 0;
+        while (imgsCount < 6) {
+            this.imagesLandscape.push (`media/imgs/tut-0${imgsCount + 1}.png`);
+            this.imagesPort.push (`media/imgs/tut-portrait-0${imgsCount + 1}.png`);
+            imgsCount++;
+        }
+        
+        if (this.spawnOnStart) {
+            this.show ();
         } else {
             this.divTutorial.style.display = 'none';
         }
 
-        window.addEventListener('resize', this.mediaQueryEvent.bind (this));
+        this.btnNext.addEventListener ('click', this.callbackNext.bind (this));
+        window.addEventListener ('resize', this.mediaQueryEvent.bind (this));
     },
 
     mediaQueryEvent (){
@@ -39,6 +39,12 @@ const domTutorial = {
             this.images = this.imagesLandscape;
         }
         this.updateImage ();
+    },
+
+    show (page = 0){
+        this.curPage = page;
+        this.mediaQueryEvent ();
+        this.divTutorial.style.display = 'flex';
     },
 
     updateImage (){

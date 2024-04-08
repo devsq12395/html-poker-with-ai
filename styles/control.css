@@ -24,6 +24,7 @@
 
 #bet-input {
     cursor: pointer;
+    overflow: hidden;
 }
 
 .control-btns {

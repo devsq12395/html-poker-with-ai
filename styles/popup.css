@@ -44,6 +44,11 @@
     font-size: 75px;
 }
 
+.popup-msg {
+    text-align: center;
+    margin: 0px 15px 0px 15px;
+}
+
 .popup-btn {
     width: 30%;
     height: 10%;

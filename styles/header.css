@@ -39,11 +39,11 @@
     right: 0;
     z-index: 1000;
 
-    width: 200px;
+    width: 0px;
     height: 1000px;
     background-color: var(--light-blue-1);
 
-    display: none;
+    display: block;
 
     overflow: hidden;
 
@@ -60,6 +60,13 @@
     justify-content: flex-start;
     align-items: flex-start;
     gap: 10px;
+
+    font-family: "DM Sans", sans-serif, Arial;
+}
+
+#nav-bar ul li {
+    overflow: hidden;
+    white-space: nowrap;
 }
 
 .nav-bar-list {

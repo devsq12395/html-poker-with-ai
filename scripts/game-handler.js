@@ -563,6 +563,10 @@ class GameHandler {
             if (!addToNotPlayer && playerDoingAction.id !== playerToAddHistory.id) return;
 
             action = actionOrig;
+            action = action.replace ('0S', '10S');
+            action = action.replace ('0H', '10H');
+            action = action.replace ('0D', '10D');
+            action = action.replace ('0C', '10C');
             action = action.replace (/{pot-stat}/g, `({player} cur chips: ${playerDoingAction.stack})`);
             action = action.replace (/{player}/g, (playerDoingAction.id === playerToAddHistory.id) ? 'You' : playerDoingAction.name);
 
